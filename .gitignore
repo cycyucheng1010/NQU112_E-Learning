@@ -1,1 +1,2 @@
-Backend/api/__pycache__
+# Ignore Python __pycache__ directories
+__pycache__/
