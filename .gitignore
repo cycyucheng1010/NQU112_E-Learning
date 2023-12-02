@@ -1,2 +1,3 @@
 # Ignore Python __pycache__ directories
-__pycache__/
+Backend/api/__pycache__
+Backend/Backend/__pycache__
