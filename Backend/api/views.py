@@ -11,8 +11,7 @@ from .models import *
 
 class ProjectViewset(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]
-    queryset = Project.objects.all()
-    
+    queryset = Project.objects.all()  
     serializer_class = ProjectSerializer
 
     def list(self, request):
