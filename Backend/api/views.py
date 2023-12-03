@@ -47,6 +47,8 @@ class ProjectViewset(viewsets.ViewSet):
         project.delete()
         return Response(status=204)
         
-
-
+    def word_search(self, request, pk=None):
+        project = self.queryset.get(pk=pk)
+        serializer = self.serializer_class(project,data=request.data)
+        return Response(serializer.data)
 

@@ -9,5 +9,13 @@ class Project(models.Model):
     created = models.DateTimeField(auto_now=True)
     modified = models.DateTimeField(auto_now=True)
 
+
     def __str__(self):
         return self.name
+
+
+class EnglishWord(models.Model):
+    word = models.TextField()
+    phonetic_symbols = models.TextField()
+    part_of_speech = models.TextField()
+    explain = models.TextField()
