@@ -19,3 +19,7 @@ class EnglishWord(models.Model):
     phonetic_symbols = models.TextField()
     part_of_speech = models.TextField()
     explain = models.TextField()
+
+
+    def __str__(self):
+        return self.name

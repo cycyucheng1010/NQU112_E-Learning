@@ -46,9 +46,19 @@ class ProjectViewset(viewsets.ViewSet):
         project = self.queryset.get(pk=pk)
         project.delete()
         return Response(status=204)
-        
-    def word_search(self, request, pk=None):
-        project = self.queryset.get(pk=pk)
-        serializer = self.serializer_class(project,data=request.data)
-        return Response(serializer.data)
 
+ #英文資料庫
+class EnglishWordSearchAPIView(viewsets.ViewSet):
+    permission_classes = [permissions.AllowAny]
+    Englishproject = EnglishWord.objects.all()
+
+    serializer_class = Englishproject
+
+
+
+#登入註冊
+#class AuthAPIView(viewsets.ViewSet):
+    #permission_classes = [permissions.AllowAny]
+    #Authproject = Account.objects.all()
+
+    
