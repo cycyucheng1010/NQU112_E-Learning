@@ -54,11 +54,15 @@ class EnglishWordSearchAPIView(viewsets.ViewSet):
 
     serializer_class = Englishproject
 
+    def list(self, request):
+        queryset = EnglishWord.objects.all()
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
 
 
 #登入註冊
-#class AuthAPIView(viewsets.ViewSet):
-    #permission_classes = [permissions.AllowAny]
-    #Authproject = Account.objects.all()
+class AuthAPIView(viewsets.ViewSet):
+    permission_classes = [permissions.AllowAny]
+    Authproject = Account.objects.all()
 
-    
+    serializer_class = Englishproject

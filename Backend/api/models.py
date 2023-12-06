@@ -23,3 +23,15 @@ class EnglishWord(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+
+
+class Account(models.Model):
+    user = models.TextField()
+    gmail =  models.TextField()
+    password = models.TextField()
+
+    
+    def __str__(self):
+        return self.name
