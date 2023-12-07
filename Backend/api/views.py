@@ -4,6 +4,7 @@ from rest_framework import viewsets, permissions
 from .serializers import *
 from rest_framework.response import Response
 from .models import *
+from django.db.models import Q
 
 
 # def home(request): 
@@ -50,19 +51,25 @@ class ProjectViewset(viewsets.ViewSet):
  #英文資料庫
 class EnglishWordSearchAPIView(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]
-    Englishproject = EnglishWord.objects.all()
-
-    serializer_class = Englishproject
+    serializer_class = EnglishSerializer
 
     def list(self, request):
-        queryset = EnglishWord.objects.all()
+        search_term = request.query_params.get('search','')
+
+        queryset = EnglishWord.objects.filter(
+            Q(word__icontains=search_term) 
+        )
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
 
-#登入註冊
-class AuthAPIView(viewsets.ViewSet):
-    permission_classes = [permissions.AllowAny]
-    Authproject = Account.objects.all()
+class UserRegister(APIView):
 
-    serializer_class = Englishproject
+
+class UserLogin(APIView):
+
+
+class UserLogout(APIView):
+
+
+class UserView(APIView)
