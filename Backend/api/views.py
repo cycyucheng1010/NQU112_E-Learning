@@ -58,7 +58,7 @@ class UserViewset(ModelViewSet):
     
     def login(self,request):
 
-        username = request.data.get('username')
+        email = request.data.get('email')
         pwd = request.data.get('password')
 
         res ={
@@ -66,12 +66,12 @@ class UserViewset(ModelViewSet):
             'msg' :'',
             'data':{}
         }
-        if not all([username,pwd]):
+        if not all([email,pwd]):
             res['msg'] = '參數異常'
             return Response(res)
         print(request.data)
         try:
-            user=User.objects.get(username=username,password=pwd)
+            user=User.objects.get(email=email,password=pwd)
         except:
             res['msg'] = '帳號或密碼錯誤請重新登入'
             return Response(res)
@@ -84,9 +84,38 @@ class UserViewset(ModelViewSet):
         request.session.set_expiry(0)
         res['msg'] = '登入成功'
         res['code'] = 1
-        res['data'] ={'username' :username}
+        res['data'] ={'email' :email}
         return Response(res)
+    @action(methods=['POST'], url_path='register', detail=False)
+    def register(self, request):
+        '''
+        注册
+        :param request: 用于传参数，必要参数 email：邮箱   password：密码  username：用户名 
+        :return:
+        '''
+        email = request.data.get('email')
+        password = request.data.get('password')
+        username = request.data.get('username')
 
+        res = {
+            'code': 0,
+            'msg': '',
+            'data': {}
+        }
+
+        if not all([email, password, username]):
+            res['msg'] = '参数异常。'
+            return Response(res)
+
+        print([email, password, username])
+        if User.objects.filter(username=username):
+            res['msg'] = '用户已存在。'
+            return Response(res)
+
+        User.objects.create(password=password, is_superuser=0, username=username, email=email)
+        res['code'] = 1
+        res['data'] = [email, password, username]
+        return Response(res)
 
 
     
