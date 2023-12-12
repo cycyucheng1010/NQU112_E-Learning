@@ -82,14 +82,22 @@ WSGI_APPLICATION = 'Backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
+import pymysql
+pymysql.install_as_MySQLdb()
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+       
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'question_bank',
+        'USER': 'root',
+        'PASSWORD': 'e318ics4',
+        'HOST': '120.125.96.109',  # 这是远程MySQL服务器的主机名或IP地址
+        'PORT': '3306',  # MySQL默认端口
+        'OPTIONS':{
+            'charset' : 'utf8mb4'
+        }
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

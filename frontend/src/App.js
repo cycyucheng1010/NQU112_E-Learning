@@ -6,6 +6,9 @@ import Create from './components/Create';
 import Navbar from './components/Navbar';
 import Edit from './components/Edit';
 import Delete from './components/Delete';
+import Search from './components/Search';
+import Login from './components/Login'; 
+import Register from './components/Register';
 function App() {
   const myWidth =200
   return (
@@ -19,6 +22,10 @@ function App() {
       <Route path="/about" element={<About/>}/>
       <Route path="/edit/:id" element={<Edit/>}/>
       <Route path="/delete/:id" element={<Delete/>}/>
+      <Route path="/search" element={<Search/>}/>
+      <Route path="/login" element={<Login/>}/>
+      <Route path="/register" element={<Register/>}/>
+    
     </Routes>
       }/>
     </div>

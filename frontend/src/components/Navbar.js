@@ -16,6 +16,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import AddIcon from '@mui/icons-material/Add';
 import { IconButton } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import SearchIcon from '@mui/icons-material/Search';
 
 
 export default function Navbar(props) {
@@ -59,6 +60,15 @@ export default function Navbar(props) {
                         <AddIcon/>
                   </ListItemIcon>
                   <ListItemText primary={"Create"} />
+                </ListItemButton>
+              </ListItem>
+
+              <ListItem disablePadding>
+                <ListItemButton component = {Link} to="/search" selected={"/search"=== path}>
+                  <ListItemIcon>
+                        <SearchIcon/>
+                  </ListItemIcon>
+                  <ListItemText primary={"Search"} />
                 </ListItemButton>
               </ListItem>
           
