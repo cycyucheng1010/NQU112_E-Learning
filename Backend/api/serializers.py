@@ -11,15 +11,4 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
-'''
-class EnglishSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EnglishWord
-        fields = ('word', 'phonetic_symbols', 'part_of_speech','explain')
 
-class ExamSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Exam
-        fields = ('','','','','')
-
-'''
