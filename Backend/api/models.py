@@ -1,4 +1,7 @@
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.base_user import BaseUserManager
+from django.utils import timezone
 
 class Project(models.Model):
     name = models.CharField(unique=True,max_length=100)
@@ -9,8 +12,21 @@ class Project(models.Model):
     created = models.DateTimeField(auto_now=True)
     modified = models.DateTimeField(auto_now=True)
 
+
     def __str__(self):
         return self.name
+
+
+class EnglishWord(models.Model):
+    word = models.TextField()
+    phonetic_symbols = models.TextField()
+    part_of_speech = models.TextField()
+    explain = models.TextField()
+
+
+    def __str__(self):
+        return self.name
+
 
 class EnglishOptional(models.Model):
     topic_number = models.TextField()
@@ -147,3 +163,4 @@ class student_scores(models.Model):
     subject = models.CharField(max_length=50)
     score = models.DecimalField(max_digits=5, decimal_places=2)
  
+
