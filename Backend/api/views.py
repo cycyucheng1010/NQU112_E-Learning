@@ -119,3 +119,4 @@ class UserViewset(ModelViewSet):
         res['code'] = 1
         res['data'] = [email, password, username]
         return Response(res)
+
