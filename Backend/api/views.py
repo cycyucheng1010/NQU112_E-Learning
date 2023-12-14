@@ -55,7 +55,6 @@ class UserViewset(ModelViewSet):
     queryset =User.objects.all()
 
     @action(methods=['POST'],url_path = 'login',detail = False)
-    
     def login(self,request):
 
         email = request.data.get('email')
