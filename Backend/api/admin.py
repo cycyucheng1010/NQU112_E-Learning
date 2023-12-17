@@ -30,5 +30,15 @@ admin.site.register(OptionalTopicNumber4)
 from .models import(ExamPapers)
 admin.site.register(ExamPapers)
 
+from .models import(ExamPaper)
+admin.site.register(ExamPaper)
+
+from .models import(EnglishWordSearch)
+admin.site.register(EnglishWordSearch)
+
 from .models import(EnglishWord)
 admin.site.register(EnglishWord)
+'''
+from .models import(ExamUI)
+admin.site.register(ExamUI)
+'''
