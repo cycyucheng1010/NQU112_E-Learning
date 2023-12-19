@@ -1,0 +1,71 @@
+/* 在你的 CSS 文件中 */
+.custom-label {
+    color: blue;
+    font-size: 16px;
+  }
+  
+  .custom-select {  
+     width: 200px; /* 設定適當的寬度 */
+     padding: 8px; /* 設定適當的內邊距 */
+     font-size: 16px; /* 設定字體大小 */
+     border: 1px solid #ccc; /* 設定邊框顏色 */
+     background-color: #ffffff; /* 設定背景顏色 */
+     color: #333; /* 設定文字顏色 */
+     border-radius: 4px; /* 設定圓角 */
+  }
+
+  .contain{
+    border: 5px solid #000000;
+    padding:200px;
+    display:flex;
+    flex-direction: row;
+    
+  }
+.dropdown{
+    position: relative;
+    display: inline-block;
+  }
+
+.rounded-0 {
+    
+background-color: #c0c3c0;
+color: white;
+padding: 16px;
+font-size: 15px;
+border: none;
+cursor: pointer;
+border-radius: 10px;
+box-shadow: 0 0 5px rgba(0, 128, 0, 0.8);
+
+}
+  
+.sec-center{
+    position: relative;
+    max-width: 100%;
+    width:400px;
+    text-align: center;
+    display:flex;
+    flex-direction: row;
+    justify-content:space-between;
+    
+}
+
+.contain1{
+    display:flex;
+    flex-direction: column;
+    justify-content:center;
+}
+.contain2{
+    display:flex;
+    flex-direction: column;
+    
+    
+}
+.form-label{
+    display:flex;
+    justify-content:center;
+}
+
+
+
+  

@@ -9,6 +9,8 @@ import Delete from './components/Delete';
 import Search from './components/Search';
 import Login from './components/Login'; 
 import Register from './components/Register';
+import SelectExam from './components/SelectExam';
+import Exam from './components/Exam';
 function App() {
   const myWidth =200
   return (
@@ -25,6 +27,8 @@ function App() {
       <Route path="/search" element={<Search/>}/>
       <Route path="/login" element={<Login/>}/>
       <Route path="/register" element={<Register/>}/>
+      <Route path="/selectexam" element={<SelectExam/>}/>
+      <Route path="/exam" element={<Exam/>}/>
     
     </Routes>
       }/>
