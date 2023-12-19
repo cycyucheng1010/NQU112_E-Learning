@@ -17,16 +17,6 @@ class Project(models.Model):
         return self.name
 
 
-class EnglishWord(models.Model):
-    word = models.TextField()
-    phonetic_symbols = models.TextField()
-    part_of_speech = models.TextField()
-    explain = models.TextField()
-
-
-    def __str__(self):
-        return self.name
-
 
 class EnglishOptional(models.Model):
     topic_number = models.TextField()
@@ -162,5 +152,7 @@ class student_scores(models.Model):
    
     subject = models.CharField(max_length=50)
     score = models.DecimalField(max_digits=5, decimal_places=2)
- 
+    
+    def __str__(self):
+        return f"{self.subject} - {self.score}"
 

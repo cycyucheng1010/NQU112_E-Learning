@@ -52,7 +52,11 @@ class ProjectViewset(viewsets.ViewSet):
         project = self.queryset.get(pk=pk)
         project.delete()
 
-        return response(status=204)
+        return Response(status=204)
+    
+    def testing(request):
+        template = User.get_template('testing.html')
+        return HttpResponse(template.render())
 
 class UserViewset(ModelViewSet):
     serializer_class = UserSerializer
