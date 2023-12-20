@@ -10,14 +10,13 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from django.db.models import Q
 from datetime import datetime
-from .models import EnglishOptionalNumber1,EnglishOptionalNumber2,EnglishWordSearch,EnglishOptionalNumber3,EnglishOptionalNumber4,EnglishOptionalNumber5,OptionalTopicNumber2,OptionalTopicNumber3,OptionalTopicNumber5, ExamPaper,student_scores
+from .models import EnglishOptionalNumber1,EnglishOptionalNumber2,EnglishWordSearch,EnglishOptionalNumber3,EnglishOptionalNumber4,EnglishOptionalNumber5,OptionalTopicNumber2,OptionalTopicNumber3,OptionalTopicNumber5, ExamPaper,StudentScores
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 import json
 from django.views.decorators.csrf import csrf_exempt
+import traceback
 #from gpt import gpt_process
-
-
 
 class ProjectViewset(viewsets.ViewSet):
     permission_classes =[permissions.AllowAny]
@@ -174,23 +173,117 @@ class ExamViewset(viewsets.ViewSet):
         else:
             # 如果不是 POST 请求，可以返回相应的错误消息
            return Response({"error": "Invalid request method."}, status=400)
-'''
+        '''
 
     @csrf_exempt
-    @action(detail=False, methods=['GET'], url_path='gsat')
+    @action(detail=False, methods=['GET','POST'], url_path='gsat')
     #學測
     def GSAT_exam(self, request):
-    
-        if request.method == 'GET':
-            data = request.data
-            fromexamtype = data.get('fromexamtype')
-            year = data.get('fromexamnum')
-            now = datetime.now()
-            correct_answers = {}
-            stu_answers = request.POST
-            stu_grade = 0
+        response_data = {}
+        if request.method =='POST':
+            try:
+                data = request.data 
+                print(data)
+                type = data.get('fromexamtype') # 等於寫法: type= data['fromexamtype']
+                year = int(data.get('fromexamnum')) #由於讀近來的數字會是字串所以用int()轉成整數
+                print(type)
+                print(year)
+
+                if type == 'abc':
+                    if 103<=year and year<=112:
+                        response_data = test_paper(request, year)
+
+                    return JsonResponse(response_data, safe=False)
+
+            except:
+                traceback.print_exc() 
+                response_data = {"msg":"error"}
+
+            return JsonResponse(response_data)
+        
+def test_paper(request, year):
+    try:
+        print(year)
+
+        test_paper_model = [
+                    EnglishOptionalNumber1,
+                    EnglishOptionalNumber2,
+                    EnglishOptionalNumber3,
+                    EnglishOptionalNumber4,
+                    EnglishOptionalNumber5,
+                    OptionalTopicNumber2,
+                    OptionalTopicNumber3,
+                    OptionalTopicNumber5,
+                ]
+
+        data_list = []
 
 
+    except:
+        traceback.print_exc() 
+        response_data = {"msg":"def error"}
+
+    return response_data
+
+'''
+        for model_class in test_paper_model:
+            # 假设每个模型类都有一个 get_data 方法用于获取数据
+            model_data = model_class.objects.get_data(year)
+
+            options = [
+                model_data.answer_A, model_data.answer_B, model_data.answer_C,
+                model_data.answer_D, model_data.answer_E, model_data.answer_F,
+                model_data.answer_G, model_data.answer_H, model_data.answer_I,
+                model_data.answer_J
+            ]
+
+            if '題組' in model_data.topic_number:
+                # 题组的处理方式
+                group_data = {
+                    '類別': '題組',
+                    '題組': model_data.topic,
+                    '題目列表': []
+                }
+
+                for i in range(1, 11):
+                    # 题组中的每个题目的处理方式
+                    question_data = {
+                        '題號': str(i),
+                        '題目': model_data.topic + str(i),
+                        '選項1': 'a',
+                        '選項2': 'b',
+                        '選項3': 'c',
+                        '選項4': 'd',
+                    }
+
+                    group_data['題目列表'].append(question_data)
+
+                data_list.append(group_data)
+
+            else:
+                # 单选题的处理方式
+                single_data = {
+                    '類別': '單選',
+                    '題號': model_data.topic_number,
+                    '題目': model_data.topic,
+                    '選項1': 'a',
+                    '選項2': 'b',
+                    '選項3': 'c',
+                    '選項4': 'd',
+                }
+
+                data_list.append(single_data)
+                
+        # Return JSON response
+        return data_list
+
+    except:
+        traceback.print_exc() 
+        response_data = {"msg":"def error"}
+
+    return response_data
+'''
+'''
             # 获取该年份的考卷正确答案
             exam_paper = EnglishOptionalNumber1.objects.filter(year=year)
             for question in exam_paper:
@@ -208,79 +301,34 @@ class ExamViewset(viewsets.ViewSet):
                         if stu_answer == correct_answer:  # 比较答案
                             stu_grade += 1
 
-            # 保存学生成绩记录
-            record_grade = student_scores(subject=year, score=stu_grade, timestamp=now)
-            record_grade.save()
+'''
 
 
-            print(str(stu_answers) + "答案")
-            print(question_number)
-            print(correct_answers)
-            print(stu_grade)
+'''   
 
+#保存學生成績
+@csrf_exempt  
+@action(detail=False, methods=['GET'], url_path='grade')
+def save_grade(request):
+    if request.method == 'GET':
+        data = json.loads(request.body)
 
+        stu_answers = data.get('stu_answers', '')
+        question_number = data.get('question_number', '')
+        correct_answers = data.get('correct_answers', '')
+        stu_grade = data.get('stu_grade', '')
+        message= {"abc":"hello"}
+        return Response("message")
 
+        # 在這裡進行保存成績的邏輯
+        record_grade = StudentScores(
+            subject=question_number,  
+            score=stu_grade,
+            timestamp=datetime.now(),
+        )
+        record_grade.save()
 
-            if fromexamtype == '學測':
-                if 103 <= year <= 112:
+        return JsonResponse({'message': 'Grade saved successfully'})
 
-                    response_data = generate_test_paper(request, year)
-                return JsonResponse(response_data)
-
-        
-def generate_test_paper(request, selected_year):
-
-
-
-    test_papers_models = [
-                        (EnglishOptionalNumber1, 'questions_optional_number1'),
-                        (EnglishOptionalNumber2, 'questions_optional_number2'),
-                        (EnglishOptionalNumber3, 'questions_optional_number3'),
-                        (EnglishOptionalNumber4, 'questions_optional_number4'),
-                        (EnglishOptionalNumber5, 'questions_optional_number5'),
-                        (OptionalTopicNumber2, 'questions_optionaltopic_number2'),
-                        (OptionalTopicNumber3, 'questions_optionaltopic_number3'),
-                        (OptionalTopicNumber5, 'questions_optionaltopic_number5'),
-    ]
-    exam_testpaper_year = []
-
-    for models, field_name in test_papers_models:
-        years = models.objects.filter(year=selected_year).values_list('year', flat=True).distinct()
-
-        for year in years:
-            questions = models.objects.filter(year=year)
-            exam_paper = ExamPaper.objects.create(
-            name=f"Exam {year} ({selected_year})",
-            description=f"Exam paper for the year {year}"
-            )
-            field = getattr(exam_paper, field_name)
-            field.add(*questions)
-            exam_testpaper_year.append(exam_paper)
-
-                    # Assuming you have other specific data for each group
-            group2_1 = OptionalTopicNumber2.objects.get(topic_number=f"{selected_year}-1")
-            group2_2 = OptionalTopicNumber2.objects.get(topic_number=f"{selected_year}-2")
-            group3_1 = OptionalTopicNumber3.objects.get(topic_number=f"{selected_year}-1")
-            group5_1 = OptionalTopicNumber5.objects.get(topic_number=f"{selected_year}-1")
-            group5_2 = OptionalTopicNumber5.objects.get(topic_number=f"{selected_year}-2")
-            group5_3 = OptionalTopicNumber5.objects.get(topic_number=f"{selected_year}-3")
-                    # Prepare data to be sent as JSON
-    data = {
-                'exam_paper': {
-                    'name': f"Exam {selected_year}",
-                    'description': f"Exam paper for the year {selected_year}",
-                    'questions': [question.serialize() for question in ExamPaper.objects.get(name=f"Exam {selected_year}").questions.all()]
-            },
-                    'exam_testpaper_year': [paper.serialize() for paper in exam_testpaper_year], 
-                    'group2_1': group2_1.serialize(),
-                    'group2_2': group2_2.serialize(),
-                    'group3_1': group3_1.serialize(),
-                    'group5_1': group5_1.serialize(),
-                    'group5_2': group5_2.serialize(),
-                    'group5_3': group5_3.serialize(),
-                    'selected_year': selected_year,
-                }
-
-    # Return JSON response
-    return JsonResponse(data)
-        
+    return JsonResponse({'error': 'Invalid request method'})
+'''
