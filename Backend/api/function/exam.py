@@ -101,33 +101,35 @@ def test_paper(request, year):
             field.add(*model_data)
         
 
-        group2_1 = EnglishOptionalNumber1.objects.filter(year=f"{year}")
+        group1 =  EnglishOptionalNumber1.objects.filter(year=f"{year}")
 
         list1 = []
 
-        for record in group2_1:
+        for record in group1:
             topic_number = record.topic_number
+            topic = record.topic
             answer_A = record.answer_A
             answer_B = record.answer_B
             answer_C = record.answer_C
             answer_D = record.answer_D
             data = [
                 f"topic_number: {topic_number}",
+                f"topic :{topic}",
                 f"answer_A: {answer_A}",
                 f"answer_B: {answer_B}",
                 f"answer_C: {answer_C}",
-                f"answer_D: {answer_D}"
+                f"answer_D: {answer_D}",
             ]
             #list1 = [item.strip() for item in list1]
             list1.extend(data)
             
         print("hi")
 
-        group2_2 = EnglishOptionalNumber2.objects.filter(year=f"{year}")
+        group2 =  EnglishOptionalNumber2.objects.filter(year=f"{year}")
 
         list2 = []
 
-        for record in group2_2:
+        for record in group2:
             topic_number = record.topic_number
             answer_A = record.answer_A
             answer_B = record.answer_B
@@ -138,27 +140,58 @@ def test_paper(request, year):
                 f"answer_A: {answer_A}",
                 f"answer_B: {answer_B}",
                 f"answer_C: {answer_C}",
-                f"answer_D: {answer_D}"
+                f"answer_D: {answer_D}",
             ]
             list2.extend(data)
         
         print("bbb")
 
-        list3 = []
-        group3_1 = OptionalTopicNumber2.objects.filter(year=f"{year}")
+        group3 =  EnglishOptionalNumber3.objects.filter(year=f"{year}")
 
-        for record in group3_1:
+        list3 = []
+
+        for record in group3:
+            topic_number = record.topic_number
+            answer_A = record.answer_A
+            answer_B = record.answer_B
+            answer_C = record.answer_C
+            answer_D = record.answer_D
+            answer_E = record.answer_E
+            answer_F = record.answer_F
+            answer_G = record.answer_G
+            answer_H = record.answer_H
+            answer_I = record.answer_I
+            answer_J = record.answer_J
+            data = [
+                f"topic_number: {topic_number}",
+                f"answer_A: {answer_A}",
+                f"answer_B: {answer_B}",
+                f"answer_C: {answer_C}",
+                f"answer_D: {answer_D}",
+                f"answer_E: {answer_E}",
+                f"answer_F: {answer_F}",
+                f"answer_G: {answer_G}",
+                f"answer_H: {answer_H}",
+                f"answer_I: {answer_I}",
+                f"answer_J: {answer_J}",
+            ]
+            list3.extend(data)
+
+        list4 = []
+        group4 = OptionalTopicNumber3.objects.filter(year=f"{year}")
+
+        for record in group4:
             topic_number = record.topic_number
             topic = record.topic
             data = {
                 f"topic_number: {topic_number}",
-                f"topic :{topic}"
+                f"topic :{topic}",
             }
-            list3.extend(data)
+            list4.extend(data)
         
         print("aaa")
 
-        list4 = []
+        list5_1 = []
         group5_1 = OptionalTopicNumber5.objects.filter(year=f"{year}")
 
         for record in group5_1:
@@ -166,13 +199,13 @@ def test_paper(request, year):
             topic = record.topic
             data = {
                 f"topic_number: {topic_number}",
-                f"topic :{topic}"
+                f"topic :{topic}",
             }
-            list4.extend(data)
+            list5_1.extend(data)
         
         print("ccc")
 
-        list5 = []
+        list5_2 = []
         group5_2 = OptionalTopicNumber5.objects.filter(year=f"{year}")
 
         for record in group5_2:
@@ -180,13 +213,13 @@ def test_paper(request, year):
             topic = record.topic
             data = {
                 f"topic_number: {topic_number}",
-                f"topic :{topic}"
+                f"topic :{topic}",
             }
-            list5.extend(data)
+            list5_2.extend(data)
         
         print("ddd")
 
-        list6 = []
+        list5_3= []
         group5_3 = OptionalTopicNumber5.objects.filter(year=f"{year}")
 
         for record in group5_3:
@@ -194,9 +227,9 @@ def test_paper(request, year):
             topic = record.topic
             data = {
                 f"topic_number: {topic_number}",
-                f"topic :{topic}"
+                f"topic :{topic}",
             }
-            list6.extend(data)
+            list5_3.extend(data)
         
         print("eee")
 
@@ -205,8 +238,9 @@ def test_paper(request, year):
         examlist.extend(list2)
         examlist.extend(list3)
         examlist.extend(list4)
-        examlist.extend(list5)
-        examlist.extend(list6)
+        examlist.extend(list5_1)
+        examlist.extend(list5_2)
+        examlist.extend(list5_3)
 
         return {"msg": "success", "examlist": examlist}
     
