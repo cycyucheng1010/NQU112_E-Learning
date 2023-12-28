@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import ProjectViewset, UserViewset, ExamViewset
+from .views import ProjectViewset, UserViewset
 from rest_framework.routers import DefaultRouter
+from .function.exam import ExamViewset
 
 router = DefaultRouter()
 router.register('project',ProjectViewset,basename='project')
