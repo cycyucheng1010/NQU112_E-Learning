@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-
+import assemblyai as aai
 from rest_framework import viewsets,permissions
 from .serializers import ProjectSerializer,Project,UserSerializer,User,EnglishSerializer,ExamPaperSerializer
 from rest_framework.response import Response 
@@ -11,12 +11,20 @@ from rest_framework.decorators import action
 from django.db.models import Q
 from datetime import datetime
 from .models import EnglishOptionalNumber1,EnglishOptionalNumber2,EnglishWordSearch,EnglishOptionalNumber3,EnglishOptionalNumber4,EnglishOptionalNumber5,OptionalTopicNumber2,OptionalTopicNumber3,OptionalTopicNumber5, ExamPapers,StudentScores
+
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 import json
 from django.views.decorators.csrf import csrf_exempt
-import traceback
-#from gpt import gpt_process
+
+from .importfile.AssemblyAI import VoiceToText
+from rest_framework.parsers import MultiPartParser #用來處理傳送來的音檔
+from django.core.files.storage import default_storage
+from rest_framework.decorators import action
+import os
+from django.utils.crypto import get_random_string
+from django.conf import settings
+
 
 class ProjectViewset(viewsets.ViewSet):
     permission_classes =[permissions.AllowAny]
@@ -125,24 +133,45 @@ class UserViewset(ModelViewSet):
 
 #英文資料庫
 class EnglishWordSearchAPIView(viewsets.ViewSet):
-    permission_classes = [permissions.AllowAny]
-    serializer_class = EnglishSerializer
-    queryset = EnglishWordSearch.objects.all()
+    parser_classes = (MultiPartParser,)
 
-    def list(self, request):
-        search = request.query_params.get('search','')
+    @action(methods=['POST'], detail=False)
+    def VoiceToText(self, request, *args, **kwargs):
+        file = request.FILES.get('file')
+        if not file:
+            return Response({"message": "没有文件上传"}, status=400)
 
-        #模糊搜尋
-        queryset = EnglishWordSearch.objects.filter(
-            Q(wordicontains=search) | Q(explainicontains=search)
-        )
-        tag = "https://dictionary.cambridge.org/zht/詞典/英語-漢語-繁體/" + search
-        print(tag)
-        context = {
-            'search': search,
-            'english_words': queryset,
-            'tag' : tag,
-        }
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(serializer.data)
+        # 设置 AssemblyAI API 密钥
+        aai.settings.api_key = "147cacab598c4c77b5cb4bb2d3ae295c"
+
+        #tmp_dir = getattr(settings, 'TEMP_DIR', '/tmp/')
+        #if not os.path.exists(tmp_dir):
+            #os.makedirs(tmp_dir)
+        import os
+        desktop_dir = os.path.join(os.path.expanduser('~'), 'Desktop', 'voice')
+        file_name = get_random_string(length=12) + '.webm'
+        #file_path = os.path.join(tmp_dir, file_name)
+        file_path = os.path.join(desktop_dir, file_name)
+        try:
+            with open(file_path, 'wb+') as destination:
+                for chunk in file.chunks():
+                    destination.write(chunk)
+
+            # 创建一个 AssemblyAI 转录器
+            transcriber = aai.Transcriber()
+            # 调用转录服务
+            transcript = transcriber.transcribe(file_path)
+            transcript_text = transcript.text
+            print(transcript_text)
+        except Exception as e:
+            # 添加更多的错误处理逻辑
+            return Response({"message": str(e)}, status=500)
+        finally:
+            # 清理临时文件
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
+        return Response({"transcript": transcript_text})
+
+
 

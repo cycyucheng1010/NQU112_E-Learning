@@ -22,8 +22,7 @@ class EnglishWordSearch(models.Model):
     phonetic_symbols = models.TextField()
     part_of_speech = models.TextField()
     explain = models.TextField()
-
-
+    
 class EnglishOptional(models.Model):
     topic_number = models.TextField()
     answer_A = models.TextField()
@@ -159,4 +158,3 @@ class StudentScores(models.Model):
     subject = models.CharField(max_length=50)
     score = models.DecimalField(max_digits=5, decimal_places=2)
     timestamp = models.DateTimeField(default=timezone.now)
-

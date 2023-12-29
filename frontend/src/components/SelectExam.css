@@ -1,0 +1,75 @@
+/* 在你的 CSS 文件中 */
+
+.custom-label {
+  color: blue;
+  font-size: 16px;
+}
+
+.custom-select {
+  width: 100%; /* 将选择框宽度设为 100% 以适应父元素 */
+  padding: 8px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  background-color: #ffffff;
+  color: #333;
+  border-radius: 4px;
+}
+
+.contain {
+  border: 5px solid #000000;
+  padding: 20px; /* 调整内边距 */
+  display: flex;
+  flex-direction: column; /* 在小屏幕上以列的形式显示 */
+}
+
+.rounded-0 {
+  background-color: #c0c3c0;
+  color: white;
+  padding: 12px; /* 调整内边距 */
+  font-size: 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 10px;
+  box-shadow: 0 0 5px rgba(0, 128, 0, 0.8);
+}
+
+.sec-center {
+  max-width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column; /* 在小屏幕上以列的形式显示 */
+  align-items: center; /* 居中对齐 */
+}
+
+.contain1 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center; /* 居中对齐 */
+}
+
+.contain2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 居中对齐 */
+}
+
+.form-label {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px; /* 添加底部间距 */
+}
+
+/* 添加媒体查询，根据屏幕宽度调整样式 */
+@media (min-width: 768px) {
+  .contain {
+    flex-direction: row; /* 在大屏幕上以行的形式显示 */
+  }
+  .sec-center {
+    flex-direction: row; /* 在大屏幕上以行的形式显示 */
+  }
+  .contain1,
+  .contain2 {
+    margin-right: 20px; /* 添加右侧间距 */
+  }
+}
