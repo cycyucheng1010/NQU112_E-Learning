@@ -17,7 +17,7 @@ from rest_framework.views import APIView
 import json
 from django.views.decorators.csrf import csrf_exempt
 
-from .importfile.AssemblyAI import VoiceToText
+#from .importfile.AssemblyAI import VoiceToText
 from rest_framework.parsers import MultiPartParser #用來處理傳送來的音檔
 from django.core.files.storage import default_storage
 from rest_framework.decorators import action
