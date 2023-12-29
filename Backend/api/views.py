@@ -132,46 +132,46 @@ class UserViewset(ModelViewSet):
         return Response(res)
 
 #英文資料庫
-class EnglishWordSearchAPIView(viewsets.ViewSet):
-    parser_classes = (MultiPartParser,)
-
-    @action(methods=['POST'], detail=False)
-    def VoiceToText(self, request, *args, **kwargs):
-        file = request.FILES.get('file')
-        if not file:
-            return Response({"message": "没有文件上传"}, status=400)
-
+#class EnglishWordSearchAPIView(viewsets.ViewSet):
+#    parser_classes = (MultiPartParser,)
+#
+#    @action(methods=['POST'], detail=False)
+#    def VoiceToText(self, request, *args, **kwargs):
+#        file = request.FILES.get('file')
+#        if not file:
+#            return Response({"message": "没有文件上传"}, status=400)#
+#
         # 设置 AssemblyAI API 密钥
-        aai.settings.api_key = "147cacab598c4c77b5cb4bb2d3ae295c"
+#        aai.settings.api_key = "147cacab598c4c77b5cb4bb2d3ae295c"
 
         #tmp_dir = getattr(settings, 'TEMP_DIR', '/tmp/')
         #if not os.path.exists(tmp_dir):
             #os.makedirs(tmp_dir)
-        import os
-        desktop_dir = os.path.join(os.path.expanduser('~'), 'Desktop', 'voice')
-        file_name = get_random_string(length=12) + '.webm'
-        #file_path = os.path.join(tmp_dir, file_name)
-        file_path = os.path.join(desktop_dir, file_name)
-        try:
-            with open(file_path, 'wb+') as destination:
-                for chunk in file.chunks():
-                    destination.write(chunk)
+#        import os
+#        desktop_dir = os.path.join(os.path.expanduser('~'), 'Desktop', 'voice')
+#        file_name = get_random_string(length=12) + '.webm'
+#        #file_path = os.path.join(tmp_dir, file_name)
+#        file_path = os.path.join(desktop_dir, file_name)
+#        try:
+#            with open(file_path, 'wb+') as destination:
+#                for chunk in file.chunks():
+#                    destination.write(chunk)
 
             # 创建一个 AssemblyAI 转录器
-            transcriber = aai.Transcriber()
+#            transcriber = aai.Transcriber()
             # 调用转录服务
-            transcript = transcriber.transcribe(file_path)
-            transcript_text = transcript.text
-            print(transcript_text)
-        except Exception as e:
+#            transcript = transcriber.transcribe(file_path)
+#            transcript_text = transcript.text
+#            print(transcript_text)
+#       except Exception as e:
             # 添加更多的错误处理逻辑
-            return Response({"message": str(e)}, status=500)
-        finally:
-            # 清理临时文件
-            if os.path.exists(file_path):
-                os.remove(file_path)
-
-        return Response({"transcript": transcript_text})
+#            return Response({"message": str(e)}, status=500)
+#        finally:
+#            # 清理临时文件
+#            if os.path.exists(file_path):
+#                os.remove(file_path)
+#
+#        return Response({"transcript": transcript_text})
 
 
 
