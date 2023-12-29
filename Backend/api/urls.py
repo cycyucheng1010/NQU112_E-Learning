@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ProjectViewset, UserViewset, ExamViewset,EnglishWordSearchAPIView
+from .views import ProjectViewset, UserViewset,EnglishWordSearchAPIView
 from rest_framework.routers import DefaultRouter
 from .function.exam import ExamViewset
 
