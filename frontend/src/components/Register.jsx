@@ -12,7 +12,8 @@ export const Register = (props) => {
       return;
     }
     let data = { email, password, username };
-    let url = 'http://localhost:8000/user/register/';
+   //let url = 'http://localhost:8000/user/register/';
+   let url = 'https://b403-120-125-96-109.ngrok-free.app/user/register/';
     axios.post(url, data, { headers: { 'Content-Type': 'application/json' } })
       .then(res => {
         if (res.status === 200 && res.data.code === 1) {

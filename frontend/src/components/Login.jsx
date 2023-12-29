@@ -13,7 +13,8 @@ export const Login = (props) => {
         }
     
         let data = { email, password };
-        let url = 'http://localhost:8000/user/login/';
+        //let url = 'http://localhost:8000/user/login/';
+        let url = 'https://b403-120-125-96-109.ngrok-free.app/user/login/'
     
         axios.post(url, data, { headers: { 'Content-Type': 'application/json' } })
           .then(res => {

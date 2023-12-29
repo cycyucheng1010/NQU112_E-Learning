@@ -6,7 +6,7 @@ import Create from './components/Create';
 import Navbar from './components/Navbar';
 import Edit from './components/Edit';
 import Delete from './components/Delete';
-import Search from './components/Search';
+import Searchs from './components/Searchs';
 import Login from './components/Login'; 
 import Register from './components/Register';
 import SelectExam from './components/SelectExam';
@@ -24,12 +24,11 @@ function App() {
       <Route path="/about" element={<About/>}/>
       <Route path="/edit/:id" element={<Edit/>}/>
       <Route path="/delete/:id" element={<Delete/>}/>
-      <Route path="/search" element={<Search/>}/>
       <Route path="/login" element={<Login/>}/>
       <Route path="/register" element={<Register/>}/>
       <Route path="/selectexam" element={<SelectExam/>}/>
       <Route path="/exam" element={<Exam/>}/>
-    
+      <Route path="/searchs" element={<Searchs/>}/>
     </Routes>
       }/>
     </div>

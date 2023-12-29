@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Project
+from .models import EnglishWordSearch
 from django.contrib.auth.models import User
 from .models import ExamPaper, EnglishOptionalNumber1, EnglishOptionalNumber2, OptionalTopicNumber2, EnglishOptionalNumber3, OptionalTopicNumber3, EnglishOptionalNumber4
 
@@ -22,3 +23,7 @@ class ExamPaperSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExamPaper
         fields = '__all__'
+class EnglishSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EnglishWordSearch
+        fields = ('word', 'phonetic_symbols', 'part_of_speech','explain')
