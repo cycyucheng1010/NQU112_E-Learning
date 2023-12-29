@@ -1,19 +1,22 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from rest_framework import viewsets,permissions
-from .serializers import ProjectSerializer,Project,UserSerializer,User
+from .serializers import ProjectSerializer,Project,UserSerializer,User,EnglishSerializer,ExamPaperSerializer
 from rest_framework.response import Response 
 from .models import Project
 from django.contrib.auth import login
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
-# Create your views here.
-
-# def home(request):
-#     return HttpResponse('this is the homepage')
-
-
+from django.db.models import Q
+from datetime import datetime
+from .models import EnglishOptionalNumber1,EnglishOptionalNumber2,EnglishWordSearch,EnglishOptionalNumber3,EnglishOptionalNumber4,EnglishOptionalNumber5,OptionalTopicNumber2,OptionalTopicNumber3,OptionalTopicNumber5, ExamPapers,StudentScores
+from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+import json
+from django.views.decorators.csrf import csrf_exempt
+import traceback
+#from gpt import gpt_process
 
 class ProjectViewset(viewsets.ViewSet):
     permission_classes =[permissions.AllowAny]
@@ -119,4 +122,27 @@ class UserViewset(ModelViewSet):
         res['code'] = 1
         res['data'] = [email, password, username]
         return Response(res)
+
+#英文資料庫
+class EnglishWordSearchAPIView(viewsets.ViewSet):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = EnglishSerializer
+    queryset = EnglishWordSearch.objects.all()
+
+    def list(self, request):
+        search = request.query_params.get('search','')
+
+        #模糊搜尋
+        queryset = EnglishWordSearch.objects.filter(
+            Q(wordicontains=search) | Q(explainicontains=search)
+        )
+        tag = "https://dictionary.cambridge.org/zht/詞典/英語-漢語-繁體/" + search
+        print(tag)
+        context = {
+            'search': search,
+            'english_words': queryset,
+            'tag' : tag,
+        }
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
 

@@ -17,15 +17,11 @@ class Project(models.Model):
         return self.name
 
 
-class EnglishWord(models.Model):
+class EnglishWordSearch(models.Model):
     word = models.TextField()
     phonetic_symbols = models.TextField()
     part_of_speech = models.TextField()
     explain = models.TextField()
-
-
-    def __str__(self):
-        return self.name
 
 
 class EnglishOptional(models.Model):
@@ -141,7 +137,7 @@ class ExamPaper(models.Model):
     questions_optional_number3 = models.ManyToManyField(EnglishOptionalNumber3)
     questions_optionaltopic_number3 = models.ManyToManyField(OptionalTopicNumber3)
     questions_optional_number4 = models.ManyToManyField(EnglishOptionalNumber4)
-    # questions_optionaltopic_number4 = models.ManyToManyField(OptionalTopicNumber4)
+    #questions_optionaltopic_number4 = models.ManyToManyField(OptionalTopicNumber4)
     questions_optional_number5 = models.ManyToManyField(EnglishOptionalNumber5)
     questions_optionaltopic_number5 = models.ManyToManyField(OptionalTopicNumber5)
 
@@ -158,9 +154,9 @@ class ExamPapers(models.Model):
     questions_optional_number5 = models.ManyToManyField(EnglishOptionalNumber5)
     questions_optionaltopic_number5 = models.ManyToManyField(OptionalTopicNumber5)
 
-class student_scores(models.Model):
+class StudentScores(models.Model):
    
     subject = models.CharField(max_length=50)
     score = models.DecimalField(max_digits=5, decimal_places=2)
- 
+    timestamp = models.DateTimeField(default=timezone.now)
 
