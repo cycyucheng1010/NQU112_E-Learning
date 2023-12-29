@@ -131,7 +131,7 @@ class UserViewset(ModelViewSet):
         res['data'] = [email, password, username]
         return Response(res)
 
-英文資料庫
+#英文資料庫
 #class EnglishWordSearchAPIView(viewsets.ViewSet):
 #    parser_classes = (MultiPartParser,)
 #
