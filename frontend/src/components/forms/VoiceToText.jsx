@@ -3,7 +3,7 @@ import axios from 'axios';
 import MicIcon from '@mui/icons-material/Mic';
 import StopIcon from '@mui/icons-material/Stop';
 
-const AudioRecorder = () => {
+const VoiceToText = () => {
   const recordingMediaRecorder = useRef(null);
   const [audioBlob, setAudioBlob] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
@@ -117,4 +117,4 @@ const AudioRecorder = () => {
   );
 };
 
-export default AudioRecorder;
+export default VoiceToText;

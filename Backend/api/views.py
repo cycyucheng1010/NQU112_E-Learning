@@ -10,21 +10,21 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from django.db.models import Q
 from datetime import datetime
-from .models import EnglishOptionalNumber1,EnglishOptionalNumber2,EnglishWordSearch,EnglishOptionalNumber3,EnglishOptionalNumber4,EnglishOptionalNumber5,OptionalTopicNumber2,OptionalTopicNumber3,OptionalTopicNumber5, ExamPapers,StudentScores
+from .models import EnglishOptionalNumber1,EnglishOptionalNumber2,EnglishWord,EnglishOptionalNumber3,EnglishOptionalNumber4,EnglishOptionalNumber5,OptionalTopicNumber2,OptionalTopicNumber3,OptionalTopicNumber5, ExamPapers,StudentScores
 
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 import json
 from django.views.decorators.csrf import csrf_exempt
 
-from .importfile.AssemblyAI import VoiceToText
+
 from rest_framework.parsers import MultiPartParser #用來處理傳送來的音檔
 from django.core.files.storage import default_storage
 from rest_framework.decorators import action
 import os
 from django.utils.crypto import get_random_string
 from django.conf import settings
-
+from django.http import JsonResponse
 
 class ProjectViewset(viewsets.ViewSet):
     permission_classes =[permissions.AllowAny]
@@ -133,8 +133,6 @@ class UserViewset(ModelViewSet):
 
 #英文資料庫
 class EnglishWordSearchAPIView(viewsets.ViewSet):
-    parser_classes = (MultiPartParser,)
-
     @action(methods=['POST'], detail=False)
     def VoiceToText(self, request, *args, **kwargs):
         file = request.FILES.get('file')
@@ -172,6 +170,74 @@ class EnglishWordSearchAPIView(viewsets.ViewSet):
                 os.remove(file_path)
 
         return Response({"transcript": transcript_text})
+    def list(self, request):
+    # 从请求中获取搜索词
+        search = request.GET.get('search_word', '').strip()  # 增加.strip()以移除可能的前后空格
 
+        # 基于搜索词进行QuerySet过滤，只选择word字段，限制为前15个结果
+        words = EnglishWord.objects.filter(
+        Q(word__istartswith=search)
+        ).values_list('word', flat=True)[:15]
+
+        # 将结果转为列表，因为values_list返回的是QuerySet
+        words_list = list(words)
+        print(list(words))
+        # 返回序列化后的数据
+        print(search + "1")
+        
+        return JsonResponse(words_list, safe=False)
+    def generate_image(word, sentence, wordpic):
+    # 1. 檢查是否已經生成過圖片
+        
+        image_filename = os.path.join(wordpic, f"{word}.png")
+        if os.path.exists(image_filename):
+            print(f"圖片 '{image_filename}' 已經存在，無需再次生成。")
+            return
+
+        # 2. 根據輸入的單字和句子生成 prompt
+        prompt = f"{sentence.replace(word, f'((({word})))')}"
+
+        url = "https://stablediffusionapi.com/api/v3/text2img"
+
+        payload = json.dumps({
+            "key": "kRdhAtCe7TqcTgUkpoBeWB569nwAO7UnvR3BGvVGBj2zJtKbsapxWka0sPQ2",
+            "prompt": prompt,
+            "width": "512",
+            "height": "512",
+            "samples": "1",
+            "num_inference_steps": "20",
+            "guidance_scale": 7.5,
+            "safety_checker": "yes",
+            "multi_lingual": "no",
+            "panorama": "no",
+            "self_attention": "no",
+            "upscale": "no",
+            "embeddings_model": None,
+            "webhook": None,
+            "track_id": None
+        })
+
+        headers = {
+            'Content-Type': 'application/json'
+        }
+
+        # 3. 發送 API 請求
+        response = requests.request("POST", url, headers=headers, data=payload)
+
+        # 4. 檢查狀態碼是否為成功
+        if response.status_code == 200:
+            response_data = response.json()
+            image_url = response_data.get("output")[0]
+
+        if image_url:
+        # 5. 下載圖片到指定資料夾
+            response_image = requests.get(image_url)
+            with open(image_filename, 'wb') as img_file:
+                img_file.write(response_image.content)
+
+        print("Generated Image URL:", image_url)
+                    
+
+        
 
 

@@ -11,6 +11,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import SelectExam from './components/SelectExam';
 import Exam from './components/Exam';
+
 function App() {
   const myWidth =200
   return (
@@ -29,6 +30,7 @@ function App() {
       <Route path="/selectexam" element={<SelectExam/>}/>
       <Route path="/exam" element={<Exam/>}/>
       <Route path="/searchs" element={<Searchs/>}/>
+
     </Routes>
       }/>
     </div>

@@ -98,7 +98,6 @@ class EnglishTopic(models.Model):
 
 class EnglishWord(models.Model):
     word = models.TextField()
-    phonetic_symbols = models.TextField()
     part_of_speech = models.TextField()
     explain = models.TextField()
 
