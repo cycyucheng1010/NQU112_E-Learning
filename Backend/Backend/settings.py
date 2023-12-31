@@ -139,3 +139,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+import openai
+openai.api_key = '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'

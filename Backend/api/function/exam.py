@@ -16,7 +16,6 @@ from rest_framework.views import APIView
 import json
 from django.views.decorators.csrf import csrf_exempt
 import traceback
-#from gpt import gpt_process
 #考試介面
 
 class ExamViewset(viewsets.ViewSet):
@@ -63,7 +62,6 @@ class ExamViewset(viewsets.ViewSet):
                 if type == '學測':
                     if 103<=year and year<=112:
                         response_data = test_paper(request, year)
-
                     return JsonResponse(response_data, safe=False)
 
             except:
