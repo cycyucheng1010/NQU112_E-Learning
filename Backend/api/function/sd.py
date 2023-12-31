@@ -58,7 +58,7 @@ def main():
     sentence_input = input("請輸入句子: ")
 
     # 指定目標資料夾
-    wordpic = r"C:\Users\user\Desktop\1234\NQU112_E-Learning\Backend\api\function\wordpic"
+    wordpic = "./function/wordpic"
 
     # 7. 增加判定，如果已生成過圖片，不再重複生成
     generate_image(word_input, sentence_input, wordpic)
