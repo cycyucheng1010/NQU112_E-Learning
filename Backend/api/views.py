@@ -179,9 +179,12 @@ class UserViewset(ModelViewSet):
 #def generate_sentence(request):
 #    data = request.data  # 使用 request.data 可以直接解析 JSON 數據
 #    word_input = data.get('word')
-#    sentence_input = data.get('sentence')
+#    fixed_sentence = "this is a"
+##    sentence_input = data.get('sentence')
 
-#    return JsonResponse({"status": "success", "sentence": f"((({word_input})))"})
+#    return JsonResponse({"status": "success", "sentence": f"{fixed_sentence} {word_input}"})
+
+##    return JsonResponse({"status": "success", "sentence": f"((({word_input})))"})
 
 #
 #@api_view(['POST'])

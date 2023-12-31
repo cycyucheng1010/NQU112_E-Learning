@@ -51,7 +51,7 @@ def generate_image(word, sentence, wordpic):
             img_file.write(response_image.content)
 
     print("Generated Image URL:", image_url)
-
+## wb=word binary以二進位方式處理文件，這在處理像圖片不會對數據進行任何文本編碼轉換，而是將原始的二進位數據直接寫入文件。
 # 6. 測試
 def main():
     word_input = input("請輸入單字: ")
