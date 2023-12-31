@@ -16,8 +16,8 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 import json
 from django.views.decorators.csrf import csrf_exempt
-
-
+import re  #比對刪除
+import string #比對轉換大小寫
 from rest_framework.parsers import MultiPartParser #用來處理傳送來的音檔
 from django.core.files.storage import default_storage
 from rest_framework.decorators import action
@@ -236,8 +236,77 @@ class EnglishWordSearchAPIView(viewsets.ViewSet):
                 img_file.write(response_image.content)
 
         print("Generated Image URL:", image_url)
-                    
 
+last_word = None
+
+class result(viewsets.ViewSet):
+    
+    @action(methods=['POST'], url_path='receive_word', detail=False)
+    def receive_word(self, request):
+        global last_word
+        # 接收单词并存储
+        last_word = request.data.get('word')
+        if last_word is None or last_word.strip() == '':
+            # 如果接收到的单词是None或空字符串，返回错误信息
+            return JsonResponse({'status': 'error', 'message': 'No word provided'})
+        # 如果单词有效，返回成功响应
+        return JsonResponse({'status': 'success', 'message': 'Word received'})
+
+    @action(methods=['GET'], url_path='get_last_word', detail=False)
+    def get_last_word(self, request):
+        # 返回存储的单词
+        return JsonResponse({'status': 'success', 'word': last_word})
+
+    @action(methods=['POST'], url_path='compare_word', detail=False)
+    def compare_word(self, request):
+        # Receive the file and word
+        file = request.FILES.get('file')
+        word = request.data.get('word')
         
+        # Validate input
+        if not file or not word:
+            return JsonResponse({'status': 'error', 'message': '未提供文件或单词'}, status=400)
+
+        # Set the file save path
+        desktop_dir = os.path.join(os.path.expanduser('~'), 'Desktop', 'voice')
+        file_name = get_random_string(length=12) + '.webm'
+        file_path = os.path.join(desktop_dir, file_name)
+
+        # Transcription logic
+        try:
+            with open(file_path, 'wb+') as destination:
+                for chunk in file.chunks():
+                    destination.write(chunk)
+
+            # Set the AssemblyAI API key and transcribe
+            aai.settings.api_key = "147cacab598c4c77b5cb4bb2d3ae295c"
+            transcriber = aai.Transcriber()
+            transcript = transcriber.transcribe(file_path)
+            transcript_text = transcript.text
+            
+         
+            
+            # Remove punctuation
+            translator = str.maketrans('', '', string.punctuation)
+            word_without_punctuation = word.translate(translator)
+            word_cleaned = re.sub(r'[^a-zA-Z0-9]', '', word)
+            transcript_text_cleaned = re.sub(r'[^a-zA-Z0-9]', '', transcript_text)
+            transcript_text_without_punctuation = transcript_text.translate(translator)
 
 
+            # Compare the word and transcript text (case insensitive)
+            match = word_without_punctuation.lower() in transcript_text_without_punctuation.lower()
+            
+            # Log the transcript and word
+            print(f"Transcript Text: {transcript_text}")
+            print(f"Word: {word}")
+
+            return JsonResponse({'status': 'success', 'word': word, 'transcript': transcript_text, 'match': match})
+        except Exception as e:
+            # Log the error
+            print(f"Error: {str(e)}")
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+        finally:
+            # Clean up temporary files
+            if os.path.exists(file_path):
+                os.remove(file_path)

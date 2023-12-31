@@ -11,6 +11,10 @@ import Login from './components/Login';
 import Register from './components/Register';
 import SelectExam from './components/SelectExam';
 import Exam from './components/Exam';
+import SearchResult from './components/SearchResult';
+import VoiceToText from './components/VoiceToText';
+import Search from './components/Search';
+
 
 function App() {
   const myWidth =200
@@ -30,6 +34,9 @@ function App() {
       <Route path="/selectexam" element={<SelectExam/>}/>
       <Route path="/exam" element={<Exam/>}/>
       <Route path="/searchs" element={<Searchs/>}/>
+      <Route path="/search_result" element={<SearchResult/>}/>
+      <Route path="/voice" element={<VoiceToText/>}/>
+      <Route path="/search" element={<Search/>}/>
 
     </Routes>
       }/>

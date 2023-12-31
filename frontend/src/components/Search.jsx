@@ -1,17 +1,12 @@
-import React, { useState,useCallback  } from "react";
+import React, { useState } from "react";
 import "./Searchs.css";
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import AxiosInstance from './Axios';
-import axios from 'axios'; 
-import { useNavigate } from 'react-router-dom';
-import _ from 'lodash';  // 引入防抖
 
-function Searchs({ placeholder, data }) {
+function Search({ placeholder, data }) {
   const [filteredData, setFilteredData] = useState([]);
   const [wordEntered, setWordEntered] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-  const navigate = useNavigate(); 
 
   const handleFilter = (event) => {
     const searchWord = event.target.value;
@@ -20,8 +15,10 @@ function Searchs({ placeholder, data }) {
     if (searchWord.trim() === "") {
       setFilteredData([]);
     } else {
+      // 使用 AxiosInstance 向后端 API 发送请求
       AxiosInstance.get(`search/?search_word=${encodeURIComponent(searchWord.trim())}`)
         .then((response) => {
+          // 后端返回的数据是一个单词列表
           setFilteredData(response.data);
           console.log(response.data);
         })
@@ -30,24 +27,6 @@ function Searchs({ placeholder, data }) {
         });
     }
   };
-
-  const debouncedSearchWord = useCallback(_.debounce((word) => {
-    if (!word.trim() || isSearching) return;
-    setIsSearching(true);
-
-    let url = 'http://localhost:8000/result/receive_word/';
-    axios.post(url, { word: word }, { headers: { 'Content-Type': 'application/json' } })
-      .then(response => {
-        console.log('后端响应:', response);
-        navigate('/search_result');
-      })
-      .catch(error => {
-        console.error("Error posting the data: ", error);
-      })
-      .finally(() => {
-        setIsSearching(false);  // 请求完成后，重置搜索状态
-      });
-  }, 300), []);  // 300毫秒的延迟
 
   const clearInput = () => {
     setFilteredData([]);
@@ -74,13 +53,15 @@ function Searchs({ placeholder, data }) {
       {filteredData.length !== 0 && (
         <div className="dataResult">
           {filteredData.slice(0, 15).map((word, index) => {
+             // 构建目标链接，这里假设是一个词典网站。
+             const wordLink = `https://dictionary.cambridge.org/dictionary/english-chinese-traditional/${word}`;
              return (
                 <a 
                   className="dataItem" 
+                  href={wordLink} 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   key={index}
-                  onClick={() => debouncedSearchWord(word)}  // 使用防抖函数
                 >
                   {word}
                 </a>
@@ -92,4 +73,4 @@ function Searchs({ placeholder, data }) {
   );
 }
 
-export default Searchs;
+export default Search;
