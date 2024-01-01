@@ -56,11 +56,6 @@ def generate_sentence(request):
         traceback.print_exc()
         return JsonResponse({"status": "error"})
 
-# 另外的函数，如果有的话
-@api_view(['POST'])
-def another_function(request):
-    # 其他逻辑
-    return JsonResponse({"status": "success"})
 
 @api_view(['POST'])
 def generate_image(request):
@@ -76,50 +71,48 @@ def generate_image(request):
             return JsonResponse({"status": "success", "image_url": f"{word_input}.png"})
 
         prompt = f"{sentence_input.replace(word_input, f'((({word_input})))')}"
-        response = send_api_request(prompt)
+        url = "https://stablediffusionapi.com/api/v3/text2img"
+        payload = {
+            "key": "kRdhAtCe7TqcTgUkpoBeWB569nwAO7UnvR3BGvVGBj2zJtKbsapxWka0sPQ2",
+            "prompt": prompt,
+            "width": "512",
+            "height": "512",
+            "samples": "1",
+            "num_inference_steps": "20",
+            "guidance_scale": 7.5,
+            "safety_checker": "yes",
+            "multi_lingual": "no",
+            "panorama": "no",
+            "self_attention": "no",
+            "upscale": "no",
+            "embeddings_model": None,
+            "webhook": None,
+            "track_id": None
+        }
 
-        if response and response.status_code == 200:
-            image_url = extract_image_url(response)
+        headers = {'Content-Type': 'application/json'}
+        response = post(url, headers=headers, json=payload)
+
+        if response.status_code == 200:
+            response_data = response.json()
+            image_url = response_data.get("output")[0] if "output" in response_data else None
 
             if image_url:
-                download_image(image_url, image_filename)
+                # 直接在 generate_image 函數中下載圖片
+                image_filename = os.path.join(word_pic_folder, f"{word_input}.png")
+                response_image = get(image_url)
+
+                with open(image_filename, 'wb') as img_file:
+                    img_file.write(response_image.content)
+
                 return JsonResponse({"status": "success", "image_url": f"{word_input}.png"})
 
         return JsonResponse({"status": "error", "message": "生成失敗"})
 
-    except Exception as e:
-        traceback.print_exc()
-        return JsonResponse({"status": "error", "message": str(e)})
 
-def send_api_request(prompt):
-    url = "https://stablediffusionapi.com/api/v3/text2img"
-    payload = {
-        "key": "kRdhAtCe7TqcTgUkpoBeWB569nwAO7UnvR3BGvVGBj2zJtKbsapxWka0sPQ2",
-        "prompt": prompt,
-        "width": "512",
-        "height": "512",
-        "samples": "1",
-        "num_inference_steps": "20",
-        "guidance_scale": 7.5,
-        "safety_checker": "yes",
-        "multi_lingual": "no",
-        "panorama": "no",
-        "self_attention": "no",
-        "upscale": "no",
-        "embeddings_model": None,
-        "webhook": None,
-        "track_id": None
-    }
+    
 
-    headers = {'Content-Type': 'application/json'}
 
-    return post(url, headers=headers, json=payload)
 
-def extract_image_url(response):
-    response_data = response.json()
-    return response_data.get("output")[0] if "output" in response_data else None
 
-def download_image(image_url, image_filename):
-    response_image = get(image_url)
-    with open(image_filename, 'wb') as img_file:
-        img_file.write(response_image.content)
+
