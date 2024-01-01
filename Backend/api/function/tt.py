@@ -109,6 +109,10 @@ def generate_image(request):
 
         return JsonResponse({"status": "error", "message": "生成失敗"})
 
+    except Exception as e:
+        traceback.print_exc()
+        return JsonResponse({"status": "error", "message": str(e)})
+
 
     
 
