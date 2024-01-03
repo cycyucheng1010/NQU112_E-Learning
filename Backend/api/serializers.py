@@ -4,11 +4,8 @@ from .models import EnglishWordSearch
 
 #from .models import ExamUI
 from django.contrib.auth.models import User
-<<<<<<< HEAD
-=======
 from .models import ExamPaper, EnglishOptionalNumber1, EnglishOptionalNumber2, OptionalTopicNumber2, EnglishOptionalNumber3, OptionalTopicNumber3, EnglishOptionalNumber4,EnglishOptionalNumber5,OptionalTopicNumber5
 
->>>>>>> af288c9e63092ecb7dd16ff30248e7573a807e05
 
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,20 +16,6 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = '__all__'
-<<<<<<< HEAD
-```
-class EnglishSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EnglishWord
-        fields = ('word', 'phonetic_symbols', 'part_of_speech','explain')
-
-class ExamSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Exam
-        fields = ('','','','','')
-
-```
-=======
 
 class EnglishSerializer(serializers.ModelSerializer):
     class Meta:
@@ -52,4 +35,16 @@ class ExamPaperSerializer(serializers.ModelSerializer):
         model = ExamPaper
         fields = '__all__'
 
->>>>>>> af288c9e63092ecb7dd16ff30248e7573a807e05
+
+
+from .models import WordSentence, WordImage
+
+class SentenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WordSentence
+        fields = ['word', 'sentence']
+
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WordImage
+        fields = ['word', 'image']

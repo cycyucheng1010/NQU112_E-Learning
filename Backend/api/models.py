@@ -17,25 +17,12 @@ class Project(models.Model):
         return self.name
 
 
-<<<<<<< HEAD
-class EnglishWord(models.Model):
-=======
 class EnglishWordSearch(models.Model):
->>>>>>> af288c9e63092ecb7dd16ff30248e7573a807e05
     word = models.TextField()
     phonetic_symbols = models.TextField()
     part_of_speech = models.TextField()
     explain = models.TextField()
-<<<<<<< HEAD
-
-
-    def __str__(self):
-        return self.name
-
-
-=======
     
->>>>>>> af288c9e63092ecb7dd16ff30248e7573a807e05
 class EnglishOptional(models.Model):
     topic_number = models.TextField()
     answer_A = models.TextField()
@@ -170,9 +157,20 @@ class StudentScores(models.Model):
    
     subject = models.CharField(max_length=50)
     score = models.DecimalField(max_digits=5, decimal_places=2)
-<<<<<<< HEAD
- 
-
-=======
     timestamp = models.DateTimeField(default=timezone.now)
->>>>>>> af288c9e63092ecb7dd16ff30248e7573a807e05
+
+
+class WordImage(models.Model):
+    word = models.CharField(max_length=50, unique=True)
+    image = models.ImageField(upload_to='word_images/', null=True, blank=True)
+
+    def __str__(self):
+        return self.word
+
+
+class WordSentence(models.Model):
+    word = models.CharField(max_length=50, unique=True)
+    sentence = models.TextField()
+
+    def __str__(self):
+        return f"{self.word} - {self.sentence}"

@@ -1,198 +1,104 @@
-import os
-import requests
-import json
-
-def generate_image(word, sentence, wordpic):
-    # 1. 檢查是否已經生成過圖片
-    image_filename = os.path.join(wordpic, f"{word}.png")
-    if os.path.exists(image_filename):
-        print(f"圖片 '{image_filename}' 已經存在，無需再次生成。")
-        return
-
-    # 2. 根據輸入的單字和句子生成 prompt
-    prompt = f"{sentence.replace(word, f'((({word})))')}"
-
-    url = "https://stablediffusionapi.com/api/v3/text2img"
-
-    payload = json.dumps({
-        "key": "kRdhAtCe7TqcTgUkpoBeWB569nwAO7UnvR3BGvVGBj2zJtKbsapxWka0sPQ2",
-        "prompt": prompt,
-        "width": "512",
-        "height": "512",
-        "samples": "1",
-        "num_inference_steps": "20",
-        "guidance_scale": 7.5,
-        "safety_checker": "yes",
-        "multi_lingual": "no",
-        "panorama": "no",
-        "self_attention": "no",
-        "upscale": "no",
-        "embeddings_model": None,
-        "webhook": None,
-        "track_id": None
-    })
-
-    headers = {
-        'Content-Type': 'application/json'
-    }
-
-    # 3. 發送 API 請求
-    response = requests.request("POST", url, headers=headers, data=payload)
-
-    # 4. 檢查狀態碼是否為成功
-    if response.status_code == 200:
-        response_data = response.json()
-        image_url = response_data.get("output")[0]
-
-    if image_url:
-    # 5. 下載圖片到指定資料夾
-        response_image = requests.get(image_url)
-        with open(image_filename, 'wb') as img_file:
-            img_file.write(response_image.content)
-
-    print("Generated Image URL:", image_url)
-## wb=word binary以二進位方式處理文件，這在處理像圖片不會對數據進行任何文本編碼轉換，而是將原始的二進位數據直接寫入文件。
-# 6. 測試
-def main():
-    word_input = input("請輸入單字: ")
-    sentence_input = input("請輸入句子: ")
-
-    # 指定目標資料夾
-    wordpic = "./function/wordpic"
-
-    # 7. 增加判定，如果已生成過圖片，不再重複生成
-    generate_image(word_input, sentence_input, wordpic)
-
-if __name__ == "__main__":
-    main()
 
 
+# 封裝 OpenAI 相關操作
+class OpenAIClient:
+    def __init__(self, api_key):
+        self.client = OpenAI(api_key=api_key)
 
+    def generate_sentence(self, word_input):
+        response = self.client.chat.completions.create(
+            model="gpt-3.5-turbo", 
+            messages=[
+                {"role": "system", "content": "You are an English teacher."},
+                {"role": "user", "content": f"Craft a vivid sentence focusing on '{word_input}', ensuring a clear understanding of its meaning (within 15 words)."}
+            ],
+            max_tokens=30
+        )
+        
+        return response
+# 初始化 OpenAI 客户端
+openai_client = OpenAIClient(api_key="sk-n2NyHG6Z2CUdEY3CeORAT3BlbkFJ2WbBGga2RuHTvGMZtVN")
 
+class SentenceAPIView(APIView):
+    def post(self, request):
+        serializer = SentenceSerializer(data=request.data)
+        if serializer.is_valid():
+            word_input = serializer.validated_data['word']
 
-
-
-
-from openai import OpenAI
-
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view
-from rest_framework.views import APIView
-from rest_framework.decorators import action
-import traceback
-from django.http import JsonResponse
-from rest_framework.response import Response
-from rest_framework import viewsets
-from django.http import HttpResponse, JsonResponse
-import os
-'''
-client = OpenAI(
-    api_key=os.environ.get("sk-n2NyHG6Z2CUdEY3CeORAT3BlbkFJ2WbBGga2RuHTvGMZtVN"),
-)'''
-client = OpenAI(api_key="sk-n2NyHG6Z2CUdEY3CeORAT3BlbkFJ2WbBGga2RuHTvGMZtVN")
-
-#class GPTView(APIView): 
-class GPTView(viewsets.ViewSet): 
-    @csrf_exempt
-    @action(detail=False, methods=['GET','POST'], url_path='gpt')
-    def gpt (self, request):
-        if request.method =='POST':
+            # 檢查資料庫中是否已存在句子
             try:
-                list = []
-                response = client.chat.completions.create(
-                    model="gpt-3.5-turbo", 
-                    messages=[
-                        {"role": "system", "content": "You are a English teacher."},
-                        {"role": "user", "content": "Craft a vivid sentence focusing on 'tea,' ensuring a clear understanding of its meaning (within 15 words)."}
-                    ],
-                    max_tokens=30
-                )
-                
-                data = response.choices[0].message.content
-                sentence_list.append(data)
+                word_sentence = WordSentence.objects.get(word=word_input)
+                generated_sentence = word_sentence.sentence
+                print(f"句子 '{generated_sentence}' 已經存在，無需再次生成。")
+                serializer = SentenceSerializer(word_sentence)
+                return Response({"status": "success", "sentence": serializer.data})
+            except WordSentence.DoesNotExist:
+                pass
 
-                # Print the sentence and output to sentence_input
-                print(f"Sentence: {data}")
-                sentence_input = data  # 賦值給 sentence_input 或進行其他處理
+            # 使用 OpenAI API 生成句子
+            response = openai_client.generate_sentence(word_input)
+            generated_sentence = response.choices[0].message.content
 
-                return JsonResponse({"msg": "success", "data": sentence_list})
+            # 保存生成的句子到資料庫
+            WordSentence.objects.create(word=word_input, sentence=generated_sentence)
+            print(f"Generated Sentence: {generated_sentence}")
 
-            except Exception as e:
-                traceback.print_exc()
-                return JsonResponse({"msg": "error"})
+            serializer = SentenceSerializer({'word': word_input, 'sentence': generated_sentence})
+        
+            return Response({"status": "success", "sentence": serializer.data})
+        else:
+            return Response({"status": "error", "message": serializer.errors}, status=400)
 
-#gpt_view = GPTView.as_view()
+class ImageAPIView(APIView):
+    def post(self, request):
+        serializer = ImageSerializer(data=request.data)
+        if serializer.is_valid():
+            word_input = serializer.validated_data['word']
+            sentence_input = serializer.validated_data['sentence']
 
+            # 檢查資料庫中是否已存在圖片
+            try:
+                word_image = WordImage.objects.get(word=word_input)
+                image_url = word_image.image.name
+                print(f"圖片 '{image_url}' 已經存在，無需再次生成。")
+                serializer = ImageSerializer(word_image)
+                return Response({"status": "success", "image": serializer.data})
+            except WordImage.DoesNotExist:
+                pass
 
+            # 使用外部 API 生成圖片
+            prompt = f"{sentence_input.replace(word_input, f'((({word_input})))')}"
+            url = "https://stablediffusionapi.com/api/v3/text2img"
+            payload = {
+                "key": "kRdhAtCe7TqcTgUkpoBeWB569nwAO7UnvR3BGvVGBj2zJtKbsapxWka0sPQ2",
+                "prompt": prompt,
+                "width": "512",
+                "height": "512",
+                "samples": "1",
+                "num_inference_steps": "20",
+                "guidance_scale": 7.5,
+                "safety_checker": "yes",
+                "multi_lingual": "no",
+                "panorama": "no",
+                "self_attention": "no",
+                "upscale": "no",
+                "embeddings_model": None,
+                "webhook": None,
+                "track_id": None
+            }
 
-@api_view(['POST'])
-def generate_sentence(request):
-    data = request.data  # 使用 request.data 可以直接解析 JSON 數據
-    word_input = data.get('word')
+            headers = {'Content-Type': 'application/json'}
+            response = requests.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            response_data = response.json()
+            image_url = response_data.get("output")[0] if "output" in response_data else None
 
-    sentence_input = data.get('sentence')
-
-
-
-    return JsonResponse({"status": "success", "sentence": f"((({word_input})))"})
-
-
-@api_view(['POST'])
-def generate_image(request):
-    data = json.loads(request.body)
-    word_input = data.get('word')
-    sentence_input = data.get('sentence')
-
-    wordpic_folder = "./function/wordpic"
-    os.makedirs(wordpic_folder, exist_ok=True)
-    image_filename = os.path.join(wordpic_folder, f"{word_input}.png")
-
-    if os.path.exists(image_filename):
-        print(f"圖片 '{image_filename}' 已經存在，無需再次生成。")
-        return JsonResponse({"status": "success", "image_url": f"{word_input}.png"})
-
-    prompt = f"{sentence_input.replace(word_input, f'((({word_input})))')}"
-    response = send_api_request(prompt)
-
-    if response and response.status_code == 200:
-        image_url = extract_image_url(response)
-
-        if image_url:
-            download_image(image_url, image_filename)
-            return JsonResponse({"status": "success", "image_url": f"{word_input}.png"})
-
-    return JsonResponse({"status": "error", "message": "生成失敗"})
-
-def send_api_request(prompt):
-    url = "https://stablediffusionapi.com/api/v3/text2img"
-    payload = {
-        "key": "kRdhAtCe7TqcTgUkpoBeWB569nwAO7UnvR3BGvVGBj2zJtKbsapxWka0sPQ2",
-        "prompt": prompt,
-        "width": "512",
-        "height": "512",
-        "samples": "1",
-        "num_inference_steps": "20",
-        "guidance_scale": 7.5,
-        "safety_checker": "yes",
-        "multi_lingual": "no",
-        "panorama": "no",
-        "self_attention": "no",
-        "upscale": "no",
-        "embeddings_model": None,
-        "webhook": None,
-        "track_id": None
-    }
-
-    headers = {'Content-Type': 'application/json'}
-
-    return post(url, headers=headers, json=payload)
-
-def extract_image_url(response):
-    response_data = response.json()
-    return response_data.get("output")[0] if "output" in response_data else None
-
-def download_image(image_url, image_filename):
-    response_image = get(image_url)
-    with open(image_filename, 'wb') as img_file:
-        img_file.write(response_image.content)
-
+            if image_url:
+                # 保存到資料庫
+                WordImage.objects.create(word=word_input, image=f'word_images/{word_input}.png')
+                serializer = ImageSerializer({'word': word_input, 'image': f'word_images/{word_input}.png'})
+                return Response({"status": "success", "image": serializer.data})
+            else:
+                return Response({"status": "error", "message": "生成失敗"})
+        else:
+            return Response({"status": "error", "message": serializer.errors}, status=400)
