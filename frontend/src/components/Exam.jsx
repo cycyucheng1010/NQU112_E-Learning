@@ -1,162 +1,97 @@
-import React, { useState, useRef, useLayoutEffect, useMemo } from 'react';
-import './Exam.css'; // 引入自定義的 CSS 文件
+import React, { useState, useEffect } from 'react';
+import './Exam.css';
+import axios from 'axios';
 
-function Exam() {
-  const [selectedOption, setSelectedOption] = useState('');
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const buttonData = ["按钮1", "按钮2", "按钮3", "按钮4", "按钮5"];
-  const [pHeight, setPHeight] = useState('auto');
-  const [divHeight, setDivHeight] = useState('500px');
-  const examQuestions = ['如何看待气候变化对社会和环境的影响？'];
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [examAnswers, setExamAnswers] = useState([]); // 保存答案的狀態
+const ExamPage = () => {
+  const [questions, setQuestions] = useState([]);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [collapsed, setCollapsed] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [confirmedAnswers, setConfirmedAnswers] = useState([]);
 
-  const handleOptionChange = (e) => {
-    setSelectedOption(e.target.value);
-  };
-  const pRef = useRef(null);
-  const divRef = useRef(null);
+  useEffect(() => {
+    // 使用 Axios 的 POST 方法
+    axios.post('https://b403-120-125-96-109.ngrok-free.app/exam/gsat/', {
+      fromexamtype: '學測', // 假設需要傳遞的參數是 fromexamtype 和 fromexamnum
+      fromexamnum: '103',
+    })
+      .then(response => setQuestions(response.data.questions))
+      .catch(error => console.error('Error fetching questions:', error));
+  }, []);
 
-  const handlePrevQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-    }
+  //if (questions.length === 0) {
+    // 資料還在載入中，你可以加入載入中的畫面或其他處理方式
+    //return <div>Loading...</div>;
+  //}
+
+  const toggleCollapse = () => {
+    setCollapsed(!collapsed);
   };
 
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < examQuestions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    }
+    setCurrentQuestion(prev => Math.min(prev + 1, questions.length - 1));
+    setSelectedOption(null); // 清空所選答案
   };
 
-  const handleSubmitExam = () => {
-    // 這裡可以處理提交考卷的邏輯，例如將答案發送到後端
-    // 這裡只是將答案打印到控制台上作為示例
-    console.log('提交的答案:', examAnswers);
+  const handlePrevQuestion = () => {
+    setCurrentQuestion(prev => Math.max(prev - 1, 0));
+    setSelectedOption(null); // 清空所選答案
   };
 
+  const handleConfirm = () => {
+    const answer = selectedOption || '未作答';
+    setConfirmedAnswers(prev => [...prev, { question: currentQuestion, answer }]);
+    console.log('Question confirmed:', { question: currentQuestion, answer });
+  };
 
+  const handleSubmit = () => {
+    // 交卷
+    console.log('Exam submitted!', confirmedAnswers);
+  };
 
-  useLayoutEffect(() => {
-    if (pRef.current.scrollHeight > pRef.current.parentElement.clientHeight) {
-      setPHeight(`${pRef.current.scrollHeight}px`);
-
-      // 只有在 <p> 內容超出時才動態調整 <div> 的高度
-      if (divRef.current.clientHeight < pRef.current.scrollHeight) {
-        setDivHeight(`${pRef.current.scrollHeight}px`);
-      }
-    }
-  }, [examQuestions]);
-
-  
+  const currentQuestionData = questions[currentQuestion] || {};
 
   return (
-    <div className="exam-container">
-      <div ref={divRef} className="topic" style={{ height: divHeight, overflow: 'visible' }}>
-        <h2>Question</h2>
-        <p ref={pRef}>{examQuestions}</p>
+    <div>
+      <div style={{ float: 'left', width: collapsed ? '50px' : '25%' }}>
+        <button onClick={toggleCollapse}>題目</button>
+        {!collapsed &&
+          questions.map((question, index) => (
+            <button key={index} onClick={() => setCurrentQuestion(index)}>
+              {index + 1}
+            </button>
+          ))}
       </div>
-      
-      <div className={`button-container ${drawerOpen ? 'open' : ''}`}>
-      <h1>第一大題</h1>
-      {buttonData.map((item, index) => (
-      <button key={index} className="myButton" onClick={() => alert(`按钮 ${item} 被点击`)}>
-      {`${index + 1}`}
-     </button>
-       ))}
-       <h1>第二大題</h1>
-      {buttonData.map((item, index) => (
-      <button key={index} className="myButton" onClick={() => alert(`按钮 ${item} 被点击`)}>
-      {`${index + 1}`}
-     </button>
-       ))}
-       <h1>第三大題</h1>
-      {buttonData.map((item, index) => (
-      <button key={index} className="myButton" onClick={() => alert(`按钮 ${item} 被点击`)}>
-      {`${index + 1}`}
-     </button>
-       ))}
-       <h1>第四大題</h1>
-      {buttonData.map((item, index) => (
-      <button key={index} className="myButton" onClick={() => alert(`按钮 ${item} 被点击`)}>
-      {`${index + 1}`}
-     </button>
-       ))}
-       <h1>第五大題</h1>
-      {buttonData.map((item, index) => (
-      <button key={index} className="myButton" onClick={() => alert(`按钮 ${item} 被点击`)}>
-      {`${index + 1}`}
-     </button>
-       ))}
-      </div>
-
-      <div className='select'>
-        <h2>选择题</h2>
-
-        <form>
-          <label>
-            <input
-              type="radio"
-              value="option1"
-              checked={selectedOption === 'option1'}
-              onChange={handleOptionChange}
-            />
-            选项1
-          </label>
-
-          <label>
-            <input
-              type="radio"
-              value="option2"
-              checked={selectedOption === 'option2'}
-              onChange={handleOptionChange}
-            />
-            选项2
-          </label>
-
-          <label>
-            <input
-              type="radio"
-              value="option3"
-              checked={selectedOption === 'option3'}
-              onChange={handleOptionChange}
-            />
-            选项3
-          </label>
-
-          <label>
-            <input
-              type="radio"
-              value="option"
-              checked={selectedOption === 'option4'}
-              onChange={handleOptionChange}
-            />
-            选项4
-          </label>
-        </form>
-
-        {selectedOption && (
-          <div>
-            <h3>你选择的选项是: {selectedOption}</h3>
-          </div>
-        )}
-      </div>
-
-      <div className='next'>
-      <button onClick={handlePrevQuestion} disabled={currentQuestionIndex === 0}>
-          上一题
-        </button>
-
-        <button onClick={handleNextQuestion} disabled={currentQuestionIndex === examQuestions.length - 1}>
-          下一题
-        </button>
-
-        <button onClick={handleSubmitExam}>
-          提交考卷
-        </button>
+      <div style={{ marginLeft: collapsed ? '50px' : '25%', width: '75%' }}>
+        <div>
+          <h2>{currentQuestionData.title}</h2>
+          <p>{currentQuestionData.content}</p>
+        </div>
+        <div>
+          {/* 選擇題選項*/}
+          {currentQuestionData.options &&
+            currentQuestionData.options.map((option, index) => (
+              <div key={index}>
+                <input
+                  type="radio"
+                  name={`question-${currentQuestion}`}
+                  value={option}
+                  checked={selectedOption === option}
+                  onChange={() => setSelectedOption(option)}
+                />
+                {option}
+              </div>
+            ))}
+        </div>
+        <div>
+          <button onClick={handlePrevQuestion}>上一題</button>
+          <button onClick={handleNextQuestion}>下一題</button>
+          <button onClick={handleConfirm}>確認</button>
+          <button onClick={handleSubmit}>交卷</button>
+        </div>
       </div>
     </div>
   );
-}
+};
 
-export default Exam;
+export default ExamPage;

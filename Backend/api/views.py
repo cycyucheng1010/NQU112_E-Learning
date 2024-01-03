@@ -25,7 +25,12 @@ import os
 from django.utils.crypto import get_random_string
 from django.conf import settings
 from django.http import JsonResponse
-
+#句子圖片模型
+from api.models import WordInfo
+import openai
+import traceback
+from openai import OpenAI
+from django.http import JsonResponse
 class ProjectViewset(viewsets.ViewSet):
     permission_classes =[permissions.AllowAny]
     queryset = Project.objects.all()
@@ -186,56 +191,6 @@ class EnglishWordSearchAPIView(viewsets.ViewSet):
         print(search + "1")
         
         return JsonResponse(words_list, safe=False)
-    def generate_image(word, sentence, wordpic):
-    # 1. 檢查是否已經生成過圖片
-        
-        image_filename = os.path.join(wordpic, f"{word}.png")
-        if os.path.exists(image_filename):
-            print(f"圖片 '{image_filename}' 已經存在，無需再次生成。")
-            return
-
-        # 2. 根據輸入的單字和句子生成 prompt
-        prompt = f"{sentence.replace(word, f'((({word})))')}"
-
-        url = "https://stablediffusionapi.com/api/v3/text2img"
-
-        payload = json.dumps({
-            "key": "kRdhAtCe7TqcTgUkpoBeWB569nwAO7UnvR3BGvVGBj2zJtKbsapxWka0sPQ2",
-            "prompt": prompt,
-            "width": "512",
-            "height": "512",
-            "samples": "1",
-            "num_inference_steps": "20",
-            "guidance_scale": 7.5,
-            "safety_checker": "yes",
-            "multi_lingual": "no",
-            "panorama": "no",
-            "self_attention": "no",
-            "upscale": "no",
-            "embeddings_model": None,
-            "webhook": None,
-            "track_id": None
-        })
-
-        headers = {
-            'Content-Type': 'application/json'
-        }
-
-        # 3. 發送 API 請求
-        response = requests.request("POST", url, headers=headers, data=payload)
-
-        # 4. 檢查狀態碼是否為成功
-        if response.status_code == 200:
-            response_data = response.json()
-            image_url = response_data.get("output")[0]
-
-        if image_url:
-        # 5. 下載圖片到指定資料夾
-            response_image = requests.get(image_url)
-            with open(image_filename, 'wb') as img_file:
-                img_file.write(response_image.content)
-
-        print("Generated Image URL:", image_url)
 
 last_word = None
 
@@ -283,8 +238,11 @@ class result(viewsets.ViewSet):
             transcriber = aai.Transcriber()
             transcript = transcriber.transcribe(file_path)
             transcript_text = transcript.text
+            transcript_text = transcript.text.lower()
+            transcript_words = transcript_text.split()
+            transcript_words = transcript_text.replace('.', '').split()
+            transcript_text = transcript_words[0]
             
-         
             
             # Remove punctuation
             translator = str.maketrans('', '', string.punctuation)
@@ -292,10 +250,11 @@ class result(viewsets.ViewSet):
             word_cleaned = re.sub(r'[^a-zA-Z0-9]', '', word)
             transcript_text_cleaned = re.sub(r'[^a-zA-Z0-9]', '', transcript_text)
             transcript_text_without_punctuation = transcript_text.translate(translator)
-
+            
+            
 
             # Compare the word and transcript text (case insensitive)
-            match = word_without_punctuation.lower() in transcript_text_without_punctuation.lower()
+            match = word_cleaned in transcript_text_cleaned
             
             # Log the transcript and word
             print(f"Transcript Text: {transcript_text}")
@@ -310,3 +269,47 @@ class result(viewsets.ViewSet):
             # Clean up temporary files
             if os.path.exists(file_path):
                 os.remove(file_path)
+    
+    @action(methods=['POST'], url_path='sentence', detail=False)
+    def word_sentence(self, request):
+        word_text = last_word.strip()  # 清理单词文本
+        # 尝试检索对应的 EnglishWord 实例
+        english_word = EnglishWord.objects.filter(word=word_text).first()
+        
+        if english_word:
+            # 检查是否已有相关的 WordInfo
+            word_info = WordInfo.objects.filter(word=english_word).first()
+            if word_info:
+                # 单词信息存在，可以进行后续操作
+                sentence = word_info.sentence
+                print(f"单词 '{word_text}' 的相关句子是: {sentence}")
+                # 可以选择在这里返回找到的句子
+                return JsonResponse({"msg": "success", "existing_sentence": sentence})
+            else:
+                # 单词信息不存在，使用 GPT-3 生成句子
+                client = OpenAI(api_key="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")
+                try:
+                    response = client.chat.completions.create(
+                        model="gpt-3.5-turbo", 
+                        messages=[
+                            {"role": "system", "content": "You are an English teacher."},
+                            {"role": "user", "content": f"give me a sentence for the word '{word_text}'"}
+                        ],
+                        max_tokens=50
+                    )
+                    
+                    generated_sentence = response.choices[0].message.content
+                    print(f"没有找到与单词 '{word_text}' 相关的句子。生成的句子是: {generated_sentence}")
+                    
+                    # 将生成的句子存储到数据库
+                    new_sentence = WordInfo(word=english_word, sentence=generated_sentence)
+                    new_sentence.save()
+                    
+                    # 将生成的句子作为 JSON 响应发送给前端
+                    return JsonResponse({"msg": "success", "generated_sentence": generated_sentence})
+                except Exception as e:
+                    traceback.print_exc()
+                    return JsonResponse({"msg": "error", "error_details": str(e)})
+        else:
+            # 如果没有找到对应的 EnglishWord 实例
+            return JsonResponse({"msg": "error", "error_details": f"Word '{word_text}' not found."})

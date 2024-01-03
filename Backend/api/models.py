@@ -157,3 +157,11 @@ class StudentScores(models.Model):
     subject = models.CharField(max_length=50)
     score = models.DecimalField(max_digits=5, decimal_places=2)
     timestamp = models.DateTimeField(default=timezone.now)
+
+class WordInfo(models.Model):
+    word = models.ForeignKey(EnglishWord, on_delete=models.CASCADE)
+    sentence = models.TextField(blank=True, null=True)
+    image = models.ImageField(upload_to='word_images/', blank=True, null=True)
+
+    def __str__(self):
+        return self.word.word 

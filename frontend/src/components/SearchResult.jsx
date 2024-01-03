@@ -9,9 +9,29 @@ function SearchResult() {
   const [isRecording, setIsRecording] = useState(false);
   const [matchResult, setMatchResult] = useState(null);  // 用于存储比对结果
   const recordingMediaRecorder = useRef(null);
+  const [imageURL, setImageURL] = useState(''); // 存储图像URL的状态
+  const [displaySentence, setDisplaySentence] = useState('');
 
   useEffect(() => {
     // 指定后端API地址
+    const url = `http://localhost:8000/result/sentence/`; // 更改为匹配您的后端API的URL
+
+    axios.post(url)
+      .then(response => {
+        if (response.data.msg === 'success') {
+          setDisplaySentence(response.data.generated_sentence);
+        } else {
+          console.error('Error: ' + response.data.error_details);
+        }
+      })
+      .catch(error => {
+        console.error("Error fetching the data: ", error);
+      });
+  }, []);
+
+  useEffect(() => {
+    // 指定后端API地址
+
     const url = `http://localhost:8000/result/get_last_word/`;
     
     axios.get(url)
@@ -97,21 +117,31 @@ function SearchResult() {
 
   return (
     <div>
-      <h1>Last Word: {displayWord}</h1>
-      <div>
-        {isRecording ? (
-          <button onClick={stopRecording}>
-            <StopIcon />
-          </button>
-        ) : (
-          <button onClick={startRecording}>
-            <MicIcon />
-          </button>
-        )}
-      </div>
-      {matchResult && <p>比对结果: {matchResult}</p>}
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+            {/* 先显示单词，然后是麦克风 */}
+            <h1 style={{ marginRight: '10px' }}> Word: {displayWord}</h1>
+            {isRecording ? (
+                <button onClick={stopRecording}>
+                    <StopIcon />
+                </button>
+            ) : (
+                <button onClick={startRecording}>
+                    <MicIcon />
+                </button>
+            )}
+        </div>
+        <div>
+            {/* 显示生成的句子 */}
+            <p>Generated Sentence: {displaySentence}</p>
+        </div>
+        <div>
+            {/* 显示图像 */}
+            {imageURL && <img src={imageURL} alt="Generated" />}
+        </div>
+        {matchResult && <p>比对结果: {matchResult}</p>}
     </div>
-  );
+);
 }
 
 export default SearchResult;
+
