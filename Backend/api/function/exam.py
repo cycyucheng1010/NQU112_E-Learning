@@ -10,7 +10,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from django.db.models import Q
 from datetime import datetime
-from ..models import EnglishOptionalNumber1,EnglishOptionalNumber2,EnglishWordSearch,EnglishOptionalNumber3,EnglishOptionalNumber4,EnglishOptionalNumber5,OptionalTopicNumber2,OptionalTopicNumber3,OptionalTopicNumber5, ExamPapers,StudentScores
+from ..models import EnglishOptionalNumber1,EnglishOptionalNumber2,EnglishWordSearch,EnglishOptionalNumber3,EnglishOptionalNumber4,EnglishOptionalNumber5,OptionalTopicNumber2,OptionalTopicNumber3,OptionalTopicNumber4,OptionalTopicNumber5, ExamPapers,StudentScores
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 import json
@@ -120,8 +120,19 @@ def test_paper(request, year):
             ]
             #list1 = [item.strip() for item in list1]
             list1.extend(data)
-            
-        print("hi")
+
+        group2_1 =  OptionalTopicNumber2.objects.filter(year=f"{year}")
+
+        list2_1  = []
+
+        for record in group2_1 :
+            topic_number = record.topic_number
+            topic = record.topic
+            data = {
+                f"topic_number: {topic_number}",
+                f"topic :{topic}",
+            }
+            list2_1 .extend(data)
 
         group2 =  EnglishOptionalNumber2.objects.filter(year=f"{year}")
 
@@ -141,8 +152,18 @@ def test_paper(request, year):
                 f"answer_D: {answer_D}",
             ]
             list2.extend(data)
-        
-        print("bbb")
+
+        list3_1 = []
+        group3_1 = OptionalTopicNumber3.objects.filter(year=f"{year}")
+
+        for record in group3_1:
+            topic_number = record.topic_number
+            topic = record.topic
+            data = {
+                f"topic_number: {topic_number}",
+                f"topic :{topic}",
+            }
+            list3_1.extend(data)
 
         group3 =  EnglishOptionalNumber3.objects.filter(year=f"{year}")
 
@@ -175,19 +196,36 @@ def test_paper(request, year):
             ]
             list3.extend(data)
 
-        list4 = []
-        group4 = OptionalTopicNumber3.objects.filter(year=f"{year}")
+        list4_1 = []
+        group4_1 = OptionalTopicNumber4.objects.filter(year=f"{year}")
 
-        for record in group4:
+        for record in group4_1:
             topic_number = record.topic_number
             topic = record.topic
             data = {
                 f"topic_number: {topic_number}",
                 f"topic :{topic}",
             }
+            list4_1.extend(data)
+
+        list4 = []
+        group4 = EnglishOptionalNumber4.objects.filter(year=f"{year}")
+        for record in group4:
+            topic_number = record.topic_number
+            topic = record.topic
+            answer_A = record.answer_A
+            answer_B = record.answer_B
+            answer_C = record.answer_C
+            answer_D = record.answer_D
+            data = [
+                f"topic_number: {topic_number}",
+                f"topic :{topic}",
+                f"answer_A: {answer_A}",
+                f"answer_B: {answer_B}",
+                f"answer_C: {answer_C}",
+                f"answer_D: {answer_D}",
+            ]
             list4.extend(data)
-        
-        print("aaa")
 
         list5_1 = []
         group5_1 = OptionalTopicNumber5.objects.filter(year=f"{year}")
@@ -200,45 +238,39 @@ def test_paper(request, year):
                 f"topic :{topic}",
             }
             list5_1.extend(data)
-        
-        print("ccc")
 
-        list5_2 = []
-        group5_2 = OptionalTopicNumber5.objects.filter(year=f"{year}")
-
-        for record in group5_2:
+        list5 = []
+        group5 = EnglishOptionalNumber5.objects.filter(year=f"{year}")
+        for record in group5:
             topic_number = record.topic_number
             topic = record.topic
-            data = {
+            answer_A = record.answer_A
+            answer_B = record.answer_B
+            answer_C = record.answer_C
+            answer_D = record.answer_D
+            data = [
                 f"topic_number: {topic_number}",
                 f"topic :{topic}",
-            }
-            list5_2.extend(data)
-        
-        print("ddd")
+                f"answer_A: {answer_A}",
+                f"answer_B: {answer_B}",
+                f"answer_C: {answer_C}",
+                f"answer_D: {answer_D}",
+            ]
+            list5.extend(data)
 
-        list5_3= []
-        group5_3 = OptionalTopicNumber5.objects.filter(year=f"{year}")
-
-        for record in group5_3:
-            topic_number = record.topic_number
-            topic = record.topic
-            data = {
-                f"topic_number: {topic_number}",
-                f"topic :{topic}",
-            }
-            list5_3.extend(data)
         
         print("eee")
 
         examlist = []
         examlist.extend(list1)
+        examlist.extend(list2_1)
         examlist.extend(list2)
+        examlist.extend(list3_1)
         examlist.extend(list3)
+        examlist.extend(list4_1)
         examlist.extend(list4)
         examlist.extend(list5_1)
-        examlist.extend(list5_2)
-        examlist.extend(list5_3)
+        examlist.extend(list5)
 
         return {"msg": "success", "examlist": examlist}
     
@@ -247,24 +279,6 @@ def test_paper(request, year):
 
     return {"msg": "def error"}
 '''
-            # 获取该年份的考卷正确答案
-            exam_paper = EnglishOptionalNumber1.objects.filter(year=year)
-            for question in exam_paper:
-                correct_answers[question.id] = question.answer
-
-
-            # 逐个比较学生答案和正确答案
-            for question_id, stu_answer_list in stu_answers.items():
-                if question_id.startswith("paper_"):  # 检查是否是问题答案字段
-                    question_number = int(question_id.replace("paper_", ""))  # 获取问题编号
-                    correct_answer = correct_answers.get(question_number)
-
-                    if correct_answer and stu_answer_list:
-                        stu_answer = stu_answer_list[0]  # 从列表中获取答案
-                        if stu_answer == correct_answer:  # 比较答案
-                            stu_grade += 1
-
-
 
 #保存學生成績
 @csrf_exempt  

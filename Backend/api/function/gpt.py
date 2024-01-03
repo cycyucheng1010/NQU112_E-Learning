@@ -10,10 +10,8 @@ from rest_framework.response import Response
 from rest_framework import viewsets
 from django.http import HttpResponse, JsonResponse
 import os
-'''
-client = OpenAI(
-    api_key=os.environ.get("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"),
-)'''
+
+
 client = OpenAI(api_key="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")
 
 #class GPTView(APIView): 
