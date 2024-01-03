@@ -1,20 +1,21 @@
 from django.urls import path
-from .views import ProjectViewset, UserViewset#,EnglishWordSearchAPIView
+from .views import ProjectViewset, UserViewset, SentenceAPIView, ImageAPIView
 from rest_framework.routers import DefaultRouter
 from .function.exam import ExamViewset
-from .views import SentenceAPIView, ImageAPIView
-
 
 router = DefaultRouter()
-router.register('project',ProjectViewset,basename='project')
+router.register('project', ProjectViewset, basename='project')
 router.register('user', UserViewset, basename='user')
 router.register('exam', ExamViewset, basename='exam')
-#router.register('search',EnglishWordSearchAPIView,basename='search')
+
 urlpatterns = router.urls
 
-urlpatterns =[
-    #path('chat/', chatgpt_request, name='chatgpt_request'),
+# 使用 += 運算符將新的路徑添加到現有的 urlpatterns 列表
+urlpatterns += [
     path('api/sentence/', SentenceAPIView.as_view(), name='api-sentence'),
     path('api/image/', ImageAPIView.as_view(), name='api-image'),
-    #path('',home)
- ]
+    # 可以在這裡添加其他路徑
+    # path('your_path/', YourView.as_view(), name='your-view-name'),
+]
+
+#router.register('search',EnglishWordSearchAPIView,basename='search')

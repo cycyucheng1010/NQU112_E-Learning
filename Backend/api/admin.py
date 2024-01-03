@@ -50,3 +50,13 @@ admin.site.register(EnglishWordSearch)
 
 from .models import(EnglishWord)
 admin.site.register(EnglishWord)
+
+from django.contrib import admin
+from .models import WordSentence, WordImage
+@admin.register(WordSentence)
+class WordSentenceAdmin(admin.ModelAdmin):
+    list_display = ('word', 'sentence')
+
+@admin.register(WordImage)
+class WordImageAdmin(admin.ModelAdmin):
+    list_display = ('word', 'image')
