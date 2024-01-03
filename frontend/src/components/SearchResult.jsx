@@ -16,10 +16,12 @@ function SearchResult() {
     // 指定后端API地址
     const url = `http://localhost:8000/result/sentence/`; // 更改为匹配您的后端API的URL
 
-    axios.post(url)
+    axios.post(url, { word: displayWord })  // 确保发送单词到后端
       .then(response => {
         if (response.data.msg === 'success') {
-          setDisplaySentence(response.data.generated_sentence);
+          // 更新状态以显示句子和图片
+          setDisplaySentence(response.data.existing_sentence || response.data.generated_sentence);
+          setImageURL(response.data.existing_image || response.data.generated_image_url);
         } else {
           console.error('Error: ' + response.data.error_details);
         }
@@ -27,7 +29,7 @@ function SearchResult() {
       .catch(error => {
         console.error("Error fetching the data: ", error);
       });
-  }, []);
+  }, [displayWord]); // 当displayWord变化时重新运行
 
   useEffect(() => {
     // 指定后端API地址

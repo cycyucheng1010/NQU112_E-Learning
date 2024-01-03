@@ -26,11 +26,13 @@ from django.utils.crypto import get_random_string
 from django.conf import settings
 from django.http import JsonResponse
 #句子圖片模型
-from api.models import WordInfo
+from api.models import WordInfos
 import openai
 import traceback
 from openai import OpenAI
 from django.http import JsonResponse
+import requests
+
 class ProjectViewset(viewsets.ViewSet):
     permission_classes =[permissions.AllowAny]
     queryset = Project.objects.all()
@@ -272,22 +274,26 @@ class result(viewsets.ViewSet):
     
     @action(methods=['POST'], url_path='sentence', detail=False)
     def word_sentence(self, request):
-        word_text = last_word.strip()  # 清理单词文本
-        # 尝试检索对应的 EnglishWord 实例
+        word_text = last_word.strip()  # 从请求中获取并清理单词文本
         english_word = EnglishWord.objects.filter(word=word_text).first()
         
         if english_word:
-            # 检查是否已有相关的 WordInfo
-            word_info = WordInfo.objects.filter(word=english_word).first()
+            word_info = WordInfos.objects.filter(word=english_word).first()
             if word_info:
                 # 单词信息存在，可以进行后续操作
                 sentence = word_info.sentence
+                image_url = word_info.image_url if word_info.image_url else None
                 print(f"单词 '{word_text}' 的相关句子是: {sentence}")
-                # 可以选择在这里返回找到的句子
-                return JsonResponse({"msg": "success", "existing_sentence": sentence})
+                
+                # 返回找到的句子和图片URL
+                return JsonResponse({
+                    "msg": "success", 
+                    "existing_sentence": sentence if sentence else "No sentence available.",
+                    "existing_image": image_url if image_url else "No image available."
+                })
             else:
                 # 单词信息不存在，使用 GPT-3 生成句子
-                client = OpenAI(api_key="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")
+                client = OpenAI(api_key="sk-MsTGz89Diw2HsRJ4u62ET3BlbkFJSwW3EQwen1555VXhpMn")  # 替换为你的OpenAI API密钥注意會一直換
                 try:
                     response = client.chat.completions.create(
                         model="gpt-3.5-turbo", 
@@ -302,11 +308,50 @@ class result(viewsets.ViewSet):
                     print(f"没有找到与单词 '{word_text}' 相关的句子。生成的句子是: {generated_sentence}")
                     
                     # 将生成的句子存储到数据库
-                    new_sentence = WordInfo(word=english_word, sentence=generated_sentence)
+                    new_sentence = WordInfos(word=english_word, sentence=generated_sentence)
                     new_sentence.save()
-                    
-                    # 将生成的句子作为 JSON 响应发送给前端
-                    return JsonResponse({"msg": "success", "generated_sentence": generated_sentence})
+
+                    # 使用Stable Diffusion API生成图片
+                    prompt = f"{generated_sentence.replace(word_text, f'((({word_text})))')}"
+                
+
+                    url = "https://stablediffusionapi.com/api/v3/text2img"
+
+                    payload = json.dumps({
+                            "key": "0nntsJq4X9NgNJUUZ0CCziE4NfQZdcNv2I0ulMa7tRjHJF0oqSsBONUa1S1e",
+                            "prompt": prompt,
+                            "width": "512",
+                            "height": "512",
+                            "samples": "1",
+                            "num_inference_steps": "20",
+                            "guidance_scale": 7.5,
+                            "safety_checker": "yes",
+                            "multi_lingual": "no",
+                            "panorama": "no",
+                            "self_attention": "no",
+                            "upscale": "no",
+                            "embeddings_model": None,
+                            "webhook": None,
+                            "track_id": None
+                        })
+                    headers = {'Content-Type': 'application/json'}
+                    response = requests.request("POST", url, headers=headers, data=payload)
+
+                    if response.status_code == 200:
+                        response_data = response.json()
+                        image_url = response_data.get("output")[0]
+                        if image_url:
+                            # 更新WordInfo实例的image字段为图片URL
+                            new_sentence.image_url = image_url
+                            new_sentence.save()
+                            print("Generated Image URL:", image_url)
+                            # 将生成的句子和图片URL作为JSON响应发送给前端
+                            return JsonResponse({"msg": "success", "generated_sentence": generated_sentence, "generated_image_url": image_url})
+                        else:
+                            print("未能获取图片 URL。")
+                    else:
+                        print("Error:", response.status_code, response.text)
+                    return JsonResponse({"msg": "error", "error_details": "Failed to generate image."})
                 except Exception as e:
                     traceback.print_exc()
                     return JsonResponse({"msg": "error", "error_details": str(e)})

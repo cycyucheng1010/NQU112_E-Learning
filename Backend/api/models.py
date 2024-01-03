@@ -161,7 +161,17 @@ class StudentScores(models.Model):
 class WordInfo(models.Model):
     word = models.ForeignKey(EnglishWord, on_delete=models.CASCADE)
     sentence = models.TextField(blank=True, null=True)
-    image = models.ImageField(upload_to='word_images/', blank=True, null=True)
+    image_file = models.ImageField(upload_to='word_images/', blank=True, null=True)
+    image_url = models.TextField(blank=True, null=True)  # 添加字段以存储图片URL
+
+    def __str__(self):
+        return self.word.word 
+
+class WordInfos(models.Model):
+    word = models.ForeignKey(EnglishWord, on_delete=models.CASCADE)
+    sentence = models.TextField(blank=True, null=True)
+    image_file = models.ImageField(upload_to='word_images/', blank=True, null=True)
+    image_url = models.TextField(blank=True, null=True)  # 添加字段以存储图片URL
 
     def __str__(self):
         return self.word.word 
