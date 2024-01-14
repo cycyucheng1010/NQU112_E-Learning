@@ -103,27 +103,22 @@ class EnglishWord(models.Model):
     explain = models.TextField()
 
 class OptionalTopic(models.Model):
-    topic_number = models.TextField()
     topic = models.TextField()
     year = models.IntegerField()
 
 class OptionalTopicNumber2(models.Model):
-    topic_number = models.TextField()
     topic = models.TextField()
     year = models.IntegerField()
 
 class OptionalTopicNumber3(models.Model):
-    topic_number = models.TextField()
     topic = models.TextField()
     year = models.IntegerField()
 
 class OptionalTopicNumber4(models.Model):
-    topic_number = models.TextField()
     topic = models.TextField()
     year = models.IntegerField()
 
 class OptionalTopicNumber5(models.Model):
-    topic_number = models.TextField()
     topic = models.TextField()
     year = models.IntegerField()
 

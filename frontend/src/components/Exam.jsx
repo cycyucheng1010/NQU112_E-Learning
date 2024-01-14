@@ -1,162 +1,164 @@
-import React, { useState, useRef, useLayoutEffect, useMemo } from 'react';
-import './Exam.css'; // 引入自定義的 CSS 文件
+import React, { useState, useEffect } from "react";
+import { useLocation } from 'react-router-dom';
+import axios from 'axios';
 
-function Exam() {
-  const [selectedOption, setSelectedOption] = useState('');
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const buttonData = ["按钮1", "按钮2", "按钮3", "按钮4", "按钮5"];
-  const [pHeight, setPHeight] = useState('auto');
-  const [divHeight, setDivHeight] = useState('500px');
-  const examQuestions = ['如何看待气候变化对社会和环境的影响？'];
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [examAnswers, setExamAnswers] = useState([]); // 保存答案的狀態
+const ExamPage = () => {
+  const location = useLocation();
+  const [examData, setExamData] = useState(location.state?.examData || []);
+  const [fromexamtype, setFromExamType] = useState(location.state?.fromexamtype || '');
+  const [fromexamnum, setFromExamNum] = useState(location.state?.fromexamnum || '');
+  const [loading, setLoading] = useState(true);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedQuestion, setSelectedQuestion] = useState(null);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
 
-  const handleOptionChange = (e) => {
-    setSelectedOption(e.target.value);
+  const handleDropdownToggle = () => {
+    setIsDropdownOpen(!isDropdownOpen);
   };
-  const pRef = useRef(null);
-  const divRef = useRef(null);
 
-  const handlePrevQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
+  const handleSelectQuestion = (questionIndex) => {
+    setSelectedQuestion(questionIndex);
+    setSelectedAnswer(null);  // 清空已選答案
+  };
+
+  const handlePreviousQuestion = () => {
+    if (selectedQuestion > 0) {
+      setSelectedQuestion(selectedQuestion - 1);
+      setSelectedAnswer(null);  // 清空已選答案
     }
   };
 
   const handleNextQuestion = () => {
-    if (currentQuestionIndex < examQuestions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    if (selectedQuestion < examData.list5.length - 1) {
+      setSelectedQuestion(selectedQuestion + 1);
+      setSelectedAnswer(null);  // 清空已選答案
     }
+  };
+
+  const handleConfirmAnswer = () => {
+    // 使用 selectedAnswer 來獲取所選的答案值
+    console.log("Confirmed Answer:", selectedAnswer);
+    // 其他處理邏輯...
   };
 
   const handleSubmitExam = () => {
-    // 這裡可以處理提交考卷的邏輯，例如將答案發送到後端
-    // 這裡只是將答案打印到控制台上作為示例
-    console.log('提交的答案:', examAnswers);
+    // TODO: 實現交卷的邏輯
+    console.log("Exam Submitted");
   };
 
-
-
-  useLayoutEffect(() => {
-    if (pRef.current.scrollHeight > pRef.current.parentElement.clientHeight) {
-      setPHeight(`${pRef.current.scrollHeight}px`);
-
-      // 只有在 <p> 內容超出時才動態調整 <div> 的高度
-      if (divRef.current.clientHeight < pRef.current.scrollHeight) {
-        setDivHeight(`${pRef.current.scrollHeight}px`);
-      }
+  useEffect(() => {
+    if (location.state?.examData) {
+      setLoading(false);
+      return;
     }
-  }, [examQuestions]);
 
-  
+    axios.post('http://127.0.0.1:8000/exam/gsat/', { fromexamtype, fromexamnum }, { headers: { 'Content-Type': 'application/json' } })
+      .then(response => {
+        console.log('Response data:', response.data);
+        setExamData(response.data || []);  // 如果 response.data 不存在，設置為空列表
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error('获取考卷数据失败:', error);
+        setLoading(false);
+      });
+  }, [location.state?.examData, fromexamtype, fromexamnum]);
+
+  if (loading) {
+    return <div>正在加载考卷数据...</div>;
+  }
 
   return (
-    <div className="exam-container">
-      <div ref={divRef} className="topic" style={{ height: divHeight, overflow: 'visible' }}>
-        <h2>Question</h2>
-        <p ref={pRef}>{examQuestions}</p>
-      </div>
-      
-      <div className={`button-container ${drawerOpen ? 'open' : ''}`}>
-      <h1>第一大題</h1>
-      {buttonData.map((item, index) => (
-      <button key={index} className="myButton" onClick={() => alert(`按钮 ${item} 被点击`)}>
-      {`${index + 1}`}
-     </button>
-       ))}
-       <h1>第二大題</h1>
-      {buttonData.map((item, index) => (
-      <button key={index} className="myButton" onClick={() => alert(`按钮 ${item} 被点击`)}>
-      {`${index + 1}`}
-     </button>
-       ))}
-       <h1>第三大題</h1>
-      {buttonData.map((item, index) => (
-      <button key={index} className="myButton" onClick={() => alert(`按钮 ${item} 被点击`)}>
-      {`${index + 1}`}
-     </button>
-       ))}
-       <h1>第四大題</h1>
-      {buttonData.map((item, index) => (
-      <button key={index} className="myButton" onClick={() => alert(`按钮 ${item} 被点击`)}>
-      {`${index + 1}`}
-     </button>
-       ))}
-       <h1>第五大題</h1>
-      {buttonData.map((item, index) => (
-      <button key={index} className="myButton" onClick={() => alert(`按钮 ${item} 被点击`)}>
-      {`${index + 1}`}
-     </button>
-       ))}
-      </div>
+    <div style={{ display: 'flex' }}>
+      {/* 左邊四分之一，顯示題號 */}
+      <div style={{ flex: '1', textAlign: 'center', paddingTop: '50px' }}>
+        <button
+          style={{ position: 'absolute', left: '10px', top: '70px' }}
+          onClick={handleDropdownToggle}
+        >
+          {isDropdownOpen ? "收起題目" : "題目"}
+        </button>
 
-      <div className='select'>
-        <h2>选择题</h2>
-
-        <form>
-          <label>
-            <input
-              type="radio"
-              value="option1"
-              checked={selectedOption === 'option1'}
-              onChange={handleOptionChange}
-            />
-            选项1
-          </label>
-
-          <label>
-            <input
-              type="radio"
-              value="option2"
-              checked={selectedOption === 'option2'}
-              onChange={handleOptionChange}
-            />
-            选项2
-          </label>
-
-          <label>
-            <input
-              type="radio"
-              value="option3"
-              checked={selectedOption === 'option3'}
-              onChange={handleOptionChange}
-            />
-            选项3
-          </label>
-
-          <label>
-            <input
-              type="radio"
-              value="option"
-              checked={selectedOption === 'option4'}
-              onChange={handleOptionChange}
-            />
-            选项4
-          </label>
-        </form>
-
-        {selectedOption && (
+        {isDropdownOpen && (
           <div>
-            <h3>你选择的选项是: {selectedOption}</h3>
+            <h4>選擇題號：</h4>
+            <div>
+              {examData.list5.map((item, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleSelectQuestion(index)}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>
 
-      <div className='next'>
-      <button onClick={handlePrevQuestion} disabled={currentQuestionIndex === 0}>
-          上一题
-        </button>
+      {/* 右邊上半部，顯示題目內容 */}
+      <div style={{ flex: '3', textAlign: 'center', paddingTop: '50px' }}>
+        {selectedQuestion !== null && (
+          <div>
+            <h4>第 {selectedQuestion + 1} 題：</h4>
+            <p>{examData.list5[selectedQuestion]}</p>
+          </div>
+        )}
+      </div>
 
-        <button onClick={handleNextQuestion} disabled={currentQuestionIndex === examQuestions.length - 1}>
-          下一题
-        </button>
+      {/* 右邊下半部，顯示選項、上一題、下一題、確認按鈕和交卷按鈕 */}
+      <div style={{ flex: '3', textAlign: 'center', paddingTop: '50px' }}>
+  {selectedQuestion !== null && (
+    <div>
+      <h4>選項：</h4>
+      <div>
+        {examData?.list1 && (
+          <button onClick={() => setSelectedAnswer(examData.list1[selectedQuestion])}>
+            {examData.list1[selectedQuestion]}
+          </button>
+        )}
+        {examData?.list2 && (
+          <button onClick={() => setSelectedAnswer(examData.list2[selectedQuestion])}>
+            {examData.list2[selectedQuestion]}
+          </button>
+        )}
+        {examData?.list3 && (
+          <button onClick={() => setSelectedAnswer(examData.list3[selectedQuestion])}>
+            {examData.list3[selectedQuestion]}
+          </button>
+        )}
+        {examData?.list4 && (
+          <button onClick={() => setSelectedAnswer(examData.list4[selectedQuestion])}>
+            {examData.list4[selectedQuestion]}
+          </button>
+        )}
+        {/* 以此類推，檢查每一個 list */}
+      </div>
+          </div>
+        )}
 
-        <button onClick={handleSubmitExam}>
-          提交考卷
-        </button>
+        {/* 上一題、下一題按鈕 */}
+        <div>
+          <button onClick={handlePreviousQuestion} disabled={selectedQuestion === 0}>
+            上一題
+          </button>
+          <button onClick={handleNextQuestion} disabled={selectedQuestion === examData.list5.length - 1}>
+            下一題
+          </button>
+        </div>
+
+        {/* 確認答案按鈕 */}
+        <div>
+          <button onClick={handleConfirmAnswer}>確認答案</button>
+        </div>
+
+        {/* 交卷按鈕 */}
+        <div>
+          <button onClick={handleSubmitExam}>交卷</button>
+        </div>
       </div>
     </div>
   );
-}
+};
 
-export default Exam;
+export default ExamPage;

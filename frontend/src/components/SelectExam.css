@@ -16,10 +16,18 @@
 }
 
 .contain {
-  border: 5px solid #000000;
-  padding: 20px; /* 调整内边距 */
+  justify-content: center; /* 水平置中 */
+  align-items: center; /* 垂直置中 */
   display: flex;
   flex-direction: column; /* 在小屏幕上以列的形式显示 */
+}
+
+.slogan {
+  text-align: center; /* 文字居中對齊 */
+  margin-bottom: 20px; /* 底部間距，可根據需要調整 */
+  font-size: 35px; /* 文字大小，可根據需要調整 */
+  font-weight: bold; /*加粗文字*/
+  color: #333; /* 文字顏色，可根據需要調整 */
 }
 
 .rounded-0 {
@@ -30,7 +38,7 @@
   border: none;
   cursor: pointer;
   border-radius: 10px;
-  box-shadow: 0 0 5px rgba(0, 128, 0, 0.8);
+  box-shadow: 0 0 5px rgb(12, 144, 221);
 }
 
 .sec-center {
@@ -39,7 +47,7 @@
   display: flex;
   flex-direction: column; /* 在小屏幕上以列的形式显示 */
   align-items: center; /* 居中对齐 */
-}
+} 
 
 .contain1 {
   display: flex;
@@ -52,6 +60,16 @@
   display: flex;
   flex-direction: column;
   align-items: center; /* 居中对齐 */
+  margin-top: 20px; /* 添加上方間距 */
+  justify-content: "center"
+}
+
+.contain3 {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 居中对齐 */
+  margin-top: 40px; /* 添加上方間距 */
+  justify-content: "center"
 }
 
 .form-label {
@@ -72,4 +90,9 @@
   .contain2 {
     margin-right: 20px; /* 添加右侧间距 */
   }
+  .contain3 {
+    margin-left: 30PX; /* 添加右侧间距 */
+    align-self: flex-end; /* 底部对齐 */
+  }
 }
+

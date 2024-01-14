@@ -10,13 +10,12 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
 from django.db.models import Q
 from datetime import datetime
-from ..models import EnglishOptionalNumber1,EnglishOptionalNumber2,EnglishWordSearch,EnglishOptionalNumber3,EnglishOptionalNumber4,EnglishOptionalNumber5,OptionalTopicNumber2,OptionalTopicNumber3,OptionalTopicNumber5, ExamPapers,StudentScores
+from ..models import EnglishOptionalNumber1,EnglishOptionalNumber2,EnglishWordSearch,EnglishOptionalNumber3,EnglishOptionalNumber4,EnglishOptionalNumber5,OptionalTopicNumber2,OptionalTopicNumber3,OptionalTopicNumber4,OptionalTopicNumber5, ExamPapers,StudentScores
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 import json
 from django.views.decorators.csrf import csrf_exempt
 import traceback
-#from gpt import gpt_process
 #考試介面
 
 class ExamViewset(viewsets.ViewSet):
@@ -51,26 +50,32 @@ class ExamViewset(viewsets.ViewSet):
     #學測
     def GSAT_exam(self, request):
         response_data = {}
-        if request.method =='POST':
+        if request.method == 'POST':
             try:
-                data = request.data 
+                data = request.data
                 print(data)
-                type = data.get('fromexamtype') # 等於寫法: type= data['fromexamtype']
-                year = int(data.get('fromexamnum')) #由於讀近來的數字會是字串所以用int()轉成整數
-                print(type)
-                print(year)
+                type = data.get('fromexamtype')
+                fromexamnum = data.get('fromexamnum')
 
-                if type == '學測':
-                    if 103<=year and year<=112:
-                        response_data = test_paper(request, year)
+                # 检查 fromexamnum 是否为 None
+                if fromexamnum is not None:
+                    year = int(fromexamnum)
+                    print(type)
+                    print(year)
 
-                    return JsonResponse(response_data, safe=False)
+                    if type == '學測':
+                        if 103 <= year <= 112:
+                            response_data = test_paper(request, year)
+                        return JsonResponse(response_data, safe=False)
+                    else:
+                        response_data = {"msg": "Invalid exam type"}
+                else:
+                    response_data = {"msg": "fromexamnum is None"}
 
             except:
-                traceback.print_exc() 
-                response_data = {"msg":"error"}
+                response_data = {"msg": "error"}
 
-            return JsonResponse(response_data)
+        return JsonResponse(response_data)
         
 def test_paper(request, year):
     try:
@@ -104,6 +109,12 @@ def test_paper(request, year):
         group1 =  EnglishOptionalNumber1.objects.filter(year=f"{year}")
 
         list1 = []
+        list1a =[]
+        list1b =[]
+        list1c = []
+        list1d = []
+        list1topic = []
+        list1topicnumber = []
 
         for record in group1:
             topic_number = record.topic_number
@@ -112,22 +123,55 @@ def test_paper(request, year):
             answer_B = record.answer_B
             answer_C = record.answer_C
             answer_D = record.answer_D
-            data = [
+            TOPIC_NUMBER = [
                 f"topic_number: {topic_number}",
+            ]
+            TOPIC = [
                 f"topic :{topic}",
+            ]
+            A = [
                 f"answer_A: {answer_A}",
+            ]
+            B = [
                 f"answer_B: {answer_B}",
+            ]
+            C = [
                 f"answer_C: {answer_C}",
+            ]
+            D = [
                 f"answer_D: {answer_D}",
             ]
             #list1 = [item.strip() for item in list1]
-            list1.extend(data)
+            list1a.extend(A)
+            list1b.extend(B)
+            list1c.extend(C)
+            list1d.extend(D)
+            list1topic.extend(TOPIC)
+            list1topicnumber.extend(TOPIC_NUMBER)
+
+
+        group2_1 =  OptionalTopicNumber2.objects.filter(year=f"{year}")
+
+        list2topic  = []
+
+        for record in group2_1 :
             
-        print("hi")
+            topic = record.topic
+            TOPIC = {
+               
+                f"topic :{topic}",
+            }
+            list2topic.extend(TOPIC)
 
         group2 =  EnglishOptionalNumber2.objects.filter(year=f"{year}")
 
         list2 = []
+        list2a =[]
+        list2b =[]
+        list2c = []
+        list2d = []
+        list2topicnumber = []
+
 
         for record in group2:
             topic_number = record.topic_number
@@ -135,20 +179,54 @@ def test_paper(request, year):
             answer_B = record.answer_B
             answer_C = record.answer_C
             answer_D = record.answer_D
-            data = [
+            TOPIC_NUMBER = [
                 f"topic_number: {topic_number}",
+            ]
+            A = [
                 f"answer_A: {answer_A}",
+            ]
+            B = [
                 f"answer_B: {answer_B}",
+            ]
+            C = [
                 f"answer_C: {answer_C}",
+            ]
+            D = [
                 f"answer_D: {answer_D}",
             ]
-            list2.extend(data)
-        
-        print("bbb")
+            list2a.extend(A)
+            list2b.extend(B)
+            list2c.extend(C)
+            list2d.extend(D)
+            list2topicnumber.extend(TOPIC_NUMBER)
+
+
+        list3_1topic = []
+        group3_1 = OptionalTopicNumber3.objects.filter(year=f"{year}")
+
+        for record in group3_1:
+            
+            topic = record.topic
+            TOPIC = {
+                f"topic :{topic}",
+            }
+            list3_1topic.extend(TOPIC)
 
         group3 =  EnglishOptionalNumber3.objects.filter(year=f"{year}")
 
         list3 = []
+        list3a = []
+        list3b = []
+        list3c = []
+        list3d = []
+        list3e = []
+        list3f = []
+        list3g = []
+        list3h = []
+        list3i = []
+        list3j = []
+        list3topic = []
+        list3topicnumber = []
 
         for record in group3:
             topic_number = record.topic_number
@@ -162,111 +240,229 @@ def test_paper(request, year):
             answer_H = record.answer_H
             answer_I = record.answer_I
             answer_J = record.answer_J
-            data = [
+            TOPIC_NUMBER = [
                 f"topic_number: {topic_number}",
+            ]
+            TOPIC = [
+                f"topic :{topic}",
+            ]
+            A = [
                 f"answer_A: {answer_A}",
+            ]
+            B = [
                 f"answer_B: {answer_B}",
+            ]
+            C = [
                 f"answer_C: {answer_C}",
+            ]
+            D = [
                 f"answer_D: {answer_D}",
+            ]
+            E = [
                 f"answer_E: {answer_E}",
+            ]
+            F = [
                 f"answer_F: {answer_F}",
+            ]
+            G = [
                 f"answer_G: {answer_G}",
+            ]
+            H = [
                 f"answer_H: {answer_H}",
+            ]
+            I = [
                 f"answer_I: {answer_I}",
+            ]
+            J = [
                 f"answer_J: {answer_J}",
             ]
-            list3.extend(data)
+
+            list3a.extend(A)
+            list3b.extend(B)
+            list3c.extend(C)
+            list3d.extend(D)
+            list3e.extend(E)
+            list3f.extend(F)
+            list3g.extend(G)
+            list3h.extend(H)
+            list3i.extend(I)
+            list3j.extend(J)
+            list3topicnumber.extend(TOPIC_NUMBER)
+            list3topic.extend(TOPIC)
+
+
+        list4_1topic = []
+        group4_1 = OptionalTopicNumber4.objects.filter(year=f"{year}")
+
+        for record in group4_1:
+           
+            topic = record.topic
+            TOPIC= {
+               
+                f"topic :{topic}",
+            }
+            list4_1topic.extend(TOPIC)
 
         list4 = []
-        group4 = OptionalTopicNumber3.objects.filter(year=f"{year}")
-
+        list4a = []
+        list4b = []
+        list4c = []
+        list4d = []
+        list4topicnumber = []
+        list4topic =[]
+        
+        group4 = EnglishOptionalNumber4.objects.filter(year=f"{year}")
         for record in group4:
             topic_number = record.topic_number
             topic = record.topic
-            data = {
+            answer_A = record.answer_A
+            answer_B = record.answer_B
+            answer_C = record.answer_C
+            answer_D = record.answer_D
+            TOPIC_NUMBER = [
                 f"topic_number: {topic_number}",
+            ]
+            TOPIC = [
                 f"topic :{topic}",
-            }
-            list4.extend(data)
-        
-        print("aaa")
+            ]
+            A = [
+                f"answer_A: {answer_A}",
+            ]
+            B = [
+                f"answer_B: {answer_B}",
+            ]
+            C = [
+                f"answer_C: {answer_C}",
+            ]
+            D = [
+                f"answer_D: {answer_D}",
+            ]
+            list4a.extend(A)
+            list4b.extend(B)
+            list4c.extend(C)
+            list4d.extend(D)
+            list4topicnumber.extend(TOPIC_NUMBER)
+            list4topic.extend(TOPIC)
 
-        list5_1 = []
+        list5_1topic = []
         group5_1 = OptionalTopicNumber5.objects.filter(year=f"{year}")
 
         for record in group5_1:
-            topic_number = record.topic_number
+            
             topic = record.topic
-            data = {
-                f"topic_number: {topic_number}",
+            TOPIC = {
+                
                 f"topic :{topic}",
             }
-            list5_1.extend(data)
-        
-        print("ccc")
+            list5_1topic.extend(TOPIC )
 
-        list5_2 = []
-        group5_2 = OptionalTopicNumber5.objects.filter(year=f"{year}")
+        list5 = []
+        list5a = []
+        list5b = []
+        list5c = []
+        list5d = []
+        list5topicnumber = []
+        list5topic =[]
 
-        for record in group5_2:
+        group5 = EnglishOptionalNumber5.objects.filter(year=f"{year}")
+        for record in group5:
             topic_number = record.topic_number
             topic = record.topic
-            data = {
+            answer_A = record.answer_A
+            answer_B = record.answer_B
+            answer_C = record.answer_C
+            answer_D = record.answer_D
+            TOPIC_NUMBER = [
                 f"topic_number: {topic_number}",
+            ]
+            TOPIC = [
                 f"topic :{topic}",
-            }
-            list5_2.extend(data)
+            ]
+            A = [
+                f"answer_A: {answer_A}",
+            ]
+            B = [
+                f"answer_B: {answer_B}",
+            ]
+            C = [
+                f"answer_C: {answer_C}",
+            ]
+            D = [
+                f"answer_D: {answer_D}",
+            ]
+
+            
+            list5a.extend(A)
+            list5b.extend(B)
+            list5c.extend(C)
+            list5d.extend(D)
+            list5topicnumber.extend(TOPIC_NUMBER)
+            list5topic.extend(TOPIC)
+
+            list6 = []
+
+        list7 = []
+        list8 = []
+        list9 = []
+        list10 = []
+        list11= []
+        list12= []
+
+
+        list7.extend(list3e)
+        list8.extend(list3f)
+        list9.extend(list3g)
+        list10.extend(list3h)
+        list11.extend(list3i)
+        list12.extend(list3j)
+
+        list1.extend(list1a)
+        list1.extend(list2a)
+        list1.extend(list3a)
+        list1.extend(list4a)
+        list1.extend(list5a)
+
+        list2.extend(list1b)
+        list2.extend(list2b)
+        list2.extend(list3b)
+        list2.extend(list4b)
+        list2.extend(list5b)
+
+        list3.extend(list1c)
+        list3.extend(list2c)
+        list3.extend(list3c)
+        list3.extend(list4c)
+        list3.extend(list5c)
+
+        list4.extend(list1d)
+        list4.extend(list2d)
+        list4.extend(list3d)
+        list4.extend(list4d)
+        list4.extend(list5d)
+
+        list5.extend(list1topic)
+        list5.extend(list2topic)
+        list5.extend(list3topic)
+        list5.extend(list4topic)
+        list5.extend(list5topic)
+        list5.extend(list3_1topic)
+        list5.extend(list4_1topic)
+        list5.extend(list5_1topic)
+
+        list6.extend(list1topicnumber)
+        list6.extend(list2topicnumber)
+        list6.extend(list3topicnumber)
+        list6.extend(list4topicnumber)
+        list6.extend(list5topicnumber)
+
         
-        print("ddd")
-
-        list5_3= []
-        group5_3 = OptionalTopicNumber5.objects.filter(year=f"{year}")
-
-        for record in group5_3:
-            topic_number = record.topic_number
-            topic = record.topic
-            data = {
-                f"topic_number: {topic_number}",
-                f"topic :{topic}",
-            }
-            list5_3.extend(data)
-        
-        print("eee")
-
-        examlist = []
-        examlist.extend(list1)
-        examlist.extend(list2)
-        examlist.extend(list3)
-        examlist.extend(list4)
-        examlist.extend(list5_1)
-        examlist.extend(list5_2)
-        examlist.extend(list5_3)
-
-        return {"msg": "success", "examlist": examlist}
+        return { "list1": list1,"list2": list2,"list3": list3,"list4": list4,"list5": list5,"list6": list6,}
     
     except:
         traceback.print_exc() 
 
     return {"msg": "def error"}
 '''
-            # 获取该年份的考卷正确答案
-            exam_paper = EnglishOptionalNumber1.objects.filter(year=year)
-            for question in exam_paper:
-                correct_answers[question.id] = question.answer
-
-
-            # 逐个比较学生答案和正确答案
-            for question_id, stu_answer_list in stu_answers.items():
-                if question_id.startswith("paper_"):  # 检查是否是问题答案字段
-                    question_number = int(question_id.replace("paper_", ""))  # 获取问题编号
-                    correct_answer = correct_answers.get(question_number)
-
-                    if correct_answer and stu_answer_list:
-                        stu_answer = stu_answer_list[0]  # 从列表中获取答案
-                        if stu_answer == correct_answer:  # 比较答案
-                            stu_grade += 1
-
-
 
 #保存學生成績
 @csrf_exempt  
@@ -293,4 +489,20 @@ def save_grade(request):
         return JsonResponse({'message': 'Grade saved successfully'})
 
     return JsonResponse({'error': 'Invalid request method'})
+
+
+    
+        examlist = []
+        examlist.extend(list1)
+        examlist.extend(list2_1)
+        examlist.extend(list2)
+        examlist.extend(list3_1)
+        examlist.extend(list3)
+        examlist.extend(list4_1)
+        examlist.extend(list4)
+        examlist.extend(list5_1)
+        examlist.extend(list5)
+'''
+'''
+
 '''

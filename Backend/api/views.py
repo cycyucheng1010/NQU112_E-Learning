@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-import assemblyai as aai
+#import assemblyai as aai#
 from rest_framework import viewsets,permissions
 from .serializers import ProjectSerializer,Project,UserSerializer,User,EnglishSerializer,ExamPaperSerializer
 from rest_framework.response import Response 

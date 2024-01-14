@@ -5,7 +5,7 @@
   align-items: center;
   justify-content: center;
   color: rgb(5, 5, 5);
-  background-image: linear-gradient(79deg, #650deae1, #cb7d7d 48%, #3e3eb1);
+  background-color: white;
 }
 
 .auth-form-container, .login-form, .register-form {
@@ -35,8 +35,8 @@ input {
 }
 
 button {
-  border: none;
-  background-color: white;
+  border: 2px solid rgb(3, 147, 231); /* 添加边框，2px的宽度 */
+  background-color: transparent; /* 使背景透明 */
   padding: 20px;
   border-radius: 10px;
   cursor: pointer;
@@ -48,3 +48,4 @@ button {
   color: white;
   text-decoration: underline;
 }
+  
