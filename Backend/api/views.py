@@ -294,7 +294,7 @@ class result(viewsets.ViewSet):
                 })
             else:
                 # 单词信息不存在，使用 GPT-3 生成句子
-                client = OpenAI(api_key="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")  # 替换为你的OpenAI API密钥注意會一直換
+                client = OpenAI(api_key="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")  # 替换为你的OpenAI API密钥注意會一直換
                 try:
                     response = client.chat.completions.create(
                         model="gpt-3.5-turbo", 
