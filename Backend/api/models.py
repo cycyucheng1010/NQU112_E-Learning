@@ -98,7 +98,6 @@ class EnglishTopic(models.Model):
 
 class EnglishWord(models.Model):
     word = models.TextField()
-    phonetic_symbols = models.TextField()
     part_of_speech = models.TextField()
     explain = models.TextField()
 
@@ -158,3 +157,21 @@ class StudentScores(models.Model):
     subject = models.CharField(max_length=50)
     score = models.DecimalField(max_digits=5, decimal_places=2)
     timestamp = models.DateTimeField(default=timezone.now)
+
+class WordInfo(models.Model):
+    word = models.ForeignKey(EnglishWord, on_delete=models.CASCADE)
+    sentence = models.TextField(blank=True, null=True)
+    image_file = models.ImageField(upload_to='word_images/', blank=True, null=True)
+    image_url = models.TextField(blank=True, null=True)  # 添加字段以存储图片URL
+
+    def __str__(self):
+        return self.word.word 
+
+class WordInfos(models.Model):
+    word = models.ForeignKey(EnglishWord, on_delete=models.CASCADE)
+    sentence = models.TextField(blank=True, null=True)
+    image_file = models.ImageField(upload_to='word_images/', blank=True, null=True)
+    image_url = models.TextField(blank=True, null=True)  # 添加字段以存储图片URL
+
+    def __str__(self):
+        return self.word.word 
