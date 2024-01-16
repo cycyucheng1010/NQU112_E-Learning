@@ -352,7 +352,7 @@ def test_paper(request, year):
             topic = record.topic
             TOPIC = {
                 
-                f"topic :{topic}",
+                f"{topic}",
             }
             list5_1topic.extend(TOPIC )
 
