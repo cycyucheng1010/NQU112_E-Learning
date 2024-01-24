@@ -17,13 +17,15 @@ class ScoreViewset(viewsets.ViewSet):
     @csrf_exempt
     @action(methods=['POST'], url_path='user_score', detail = False)
     def score_process(self, request):
+
         Score_data = {}
+
         if request.method == 'POST' :
             try :
 
                 data = request.data
                 print(data)
-
+                
                 user_answer = data.get('useranswer') #後端接收到使用者的作答
                 year = int(data.get('fromexamnum'))#抓該年分的答案
 
@@ -34,15 +36,14 @@ class ScoreViewset(viewsets.ViewSet):
                 #將總分塞到data
                 if 103<=year and year<=112:
                     Score_data = answer_process(request ,user_answer, year)
-
                 #回傳分數給前端
-                return JsonResponse({"Score_data": Score_data,}, safe=False)
+                return JsonResponse(Score_data, safe=False)
 
             except :
                 traceback.print_exc() 
                 response_data = {"msg":"error"}
-
-            return JsonResponse(response_data)
+            
+            return Response(response_data)
         
 #對答案 然後抓寫正確的題數        
 def answer_process(request ,user_answer, year):
@@ -180,17 +181,18 @@ def answer_process(request ,user_answer, year):
                 s5 += 2
         #總分
         total_score = s1 + s2 +s3 +s4 +s5
-         
-        return {
-            "user score":user_score,
-            "total score":total_score,
-            "correct answer":correct_answer,
-            }
+
+        response_data = {
+            "user score": user_score,
+            "total score": total_score,
+            "correct answer": correct_answer,
+        }
+        return response_data
     except:
         traceback.print_exc() 
         response_data = {"msg":"answer_error"}
 
-    return Response(response_data)
+    return response_data
 
 '''
 

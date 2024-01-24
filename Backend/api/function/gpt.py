@@ -12,9 +12,9 @@ from django.http import HttpResponse, JsonResponse
 import os
 
 
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="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")
 
-#class GPTView(APIView): 
+
 class GPTView(viewsets.ViewSet): 
     @csrf_exempt
     @action(detail=False, methods=['GET','POST'], url_path='gpt')
@@ -40,4 +40,3 @@ class GPTView(viewsets.ViewSet):
                 traceback.print_exc() 
                 return JsonResponse({"msg": "error"})
 
-#gpt_view = GPTView.as_view()

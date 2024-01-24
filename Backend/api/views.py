@@ -122,7 +122,7 @@ class UserViewset(ModelViewSet):
         res['code'] = 1
         res['data'] = [email, password, username]
         return Response(res)
-
+'''
 #英文資料庫
 class EnglishWordSearchAPIView(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]
@@ -145,4 +145,4 @@ class EnglishWordSearchAPIView(viewsets.ViewSet):
         }
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
-
+'''
