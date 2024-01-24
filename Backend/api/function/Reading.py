@@ -10,7 +10,7 @@ from rest_framework import viewsets
 from django.http import HttpResponse, JsonResponse
 import os
 
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="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")
 
 class ReadingView(viewsets.ViewSet): 
     @csrf_exempt
@@ -20,7 +20,12 @@ class ReadingView(viewsets.ViewSet):
             try:
 
                 data = request.data
-                message_type = data.get('article','question')
+                print(data)
+
+                article = data.get('article')
+                question = data.get('question')
+
+
 
                 print(data)
 
@@ -30,10 +35,12 @@ class ReadingView(viewsets.ViewSet):
                         {"role": "system", "content": "You are an English teacher. I am a student"},
                         {"role": "user", "content":  "Write a No subject limit 100-word article."},
                     ]
+                    list_article = []
+                    list_article.extend(messages)
 
                 elif message_type == 'question':
                     messages = [
-                        {"role": "system", "content": "You are an English teacher."},
+                        {"role": "system", "content": list_article},
                         {"role": "user", "content": "And write 1 reading comprehension question based on the above article."},
                     ]
                 else:

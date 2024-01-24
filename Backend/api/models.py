@@ -98,31 +98,27 @@ class EnglishTopic(models.Model):
 
 class EnglishWord(models.Model):
     word = models.TextField()
+    phonetic_symbols = models.TextField()
     part_of_speech = models.TextField()
     explain = models.TextField()
 
 class OptionalTopic(models.Model):
-    topic_number = models.TextField()
     topic = models.TextField()
     year = models.IntegerField()
 
 class OptionalTopicNumber2(models.Model):
-    topic_number = models.TextField()
     topic = models.TextField()
     year = models.IntegerField()
 
 class OptionalTopicNumber3(models.Model):
-    topic_number = models.TextField()
     topic = models.TextField()
     year = models.IntegerField()
 
 class OptionalTopicNumber4(models.Model):
-    topic_number = models.TextField()
     topic = models.TextField()
     year = models.IntegerField()
 
 class OptionalTopicNumber5(models.Model):
-    topic_number = models.TextField()
     topic = models.TextField()
     year = models.IntegerField()
 
@@ -151,7 +147,6 @@ class ExamPapers(models.Model):
     # questions_optionaltopic_number4 = models.ManyToManyField(OptionalTopicNumber4)
     questions_optional_number5 = models.ManyToManyField(EnglishOptionalNumber5)
     questions_optionaltopic_number5 = models.ManyToManyField(OptionalTopicNumber5)
-
 
 class StudentScores(models.Model):
    

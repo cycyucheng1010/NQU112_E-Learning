@@ -399,7 +399,7 @@ def test_paper(request, year):
             list5topicnumber.extend(TOPIC_NUMBER)
             list5topic.extend(TOPIC)
 
-            list6 = []
+        list6 = []
 
         list7 = []
         list8 = []
