@@ -10,7 +10,7 @@ from rest_framework import viewsets
 from django.http import HttpResponse, JsonResponse
 import os
 
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="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")
 
 class ReadingView(viewsets.ViewSet): 
     @csrf_exempt
@@ -18,11 +18,13 @@ class ReadingView(viewsets.ViewSet):
     def gpt (self, request):
         if request.method =='POST':
             try:
-
                 data = request.data
-                message_type = data.get('article','question')
+                message_type = data.get('message_type')
 
-                print(data)
+                generated_text = ""
+
+                list_article = []
+                list_question = []
 
                 # 根据消息类型选择发送的消息
                 if message_type == 'article':
@@ -32,10 +34,19 @@ class ReadingView(viewsets.ViewSet):
                     ]
 
                 elif message_type == 'question':
+                    
                     messages = [
-                        {"role": "system", "content": "You are an English teacher."},
+                        {"role": "system", "content": list_article},
                         {"role": "user", "content": "And write 1 reading comprehension question based on the above article."},
                     ]
+
+                elif message_type == 'options':
+                   
+                    messages = [
+                        {"role": "system", "content": list_question},
+                        {"role": "user", "content": "Give me four options based on the question just now and olny one current answer"},
+                    ]
+                
                 else:
                     return JsonResponse({"error": "Invalid message type"})
 
@@ -46,6 +57,17 @@ class ReadingView(viewsets.ViewSet):
                     max_tokens=150
                 )
 
+                if message_type == 'article':
+                    list_article.extend(generated_text)
+                    print(list_article)
+                
+                elif  message_type == 'question':
+                    list_article.extend(generated_text)
+                    print(list_question)
+
+                
+
+                
                 # 獲取生成的文本
                 generated_text = response.choices[0].message.content
 
