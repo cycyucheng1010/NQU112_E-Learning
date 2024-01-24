@@ -83,7 +83,7 @@ const ExamPage = () => {
           <div>
             <h4>選擇題號：</h4>
             <div>
-              {examData.list5.map((item, index) => (
+              {examData.list6.map((item, index) => (
                 <button
                   key={index}
                   onClick={() => handleSelectQuestion(index)}
