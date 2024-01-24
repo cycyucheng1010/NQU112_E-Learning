@@ -143,4 +143,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 APPEND_SLASH = False
 
 import openai
-openai.api_key = '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'
+openai.api_key = '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'
