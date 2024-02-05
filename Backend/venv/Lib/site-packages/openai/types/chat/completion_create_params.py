@@ -8,12 +8,8 @@ from typing_extensions import Literal, Required, TypedDict
 from ...types import shared_params
 from .chat_completion_tool_param import ChatCompletionToolParam
 from .chat_completion_message_param import ChatCompletionMessageParam
-from .chat_completion_tool_choice_option_param import (
-    ChatCompletionToolChoiceOptionParam,
-)
-from .chat_completion_function_call_option_param import (
-    ChatCompletionFunctionCallOptionParam,
-)
+from .chat_completion_tool_choice_option_param import ChatCompletionToolChoiceOptionParam
+from .chat_completion_function_call_option_param import ChatCompletionFunctionCallOptionParam
 
 __all__ = [
     "CompletionCreateParamsBase",
@@ -36,6 +32,8 @@ class CompletionCreateParamsBase(TypedDict, total=False):
         Union[
             str,
             Literal[
+                "gpt-4-0125-preview",
+                "gpt-4-turbo-preview",
                 "gpt-4-1106-preview",
                 "gpt-4-vision-preview",
                 "gpt-4",
@@ -137,7 +135,9 @@ class CompletionCreateParamsBase(TypedDict, total=False):
     response_format: ResponseFormat
     """An object specifying the format that the model must output.
 
-    Compatible with `gpt-4-1106-preview` and `gpt-3.5-turbo-1106`.
+    Compatible with
+    [GPT-4 Turbo](https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo) and
+    `gpt-3.5-turbo-1106`.
 
     Setting to `{ "type": "json_object" }` enables JSON mode, which guarantees the
     message the model generates is valid JSON.
@@ -178,7 +178,7 @@ class CompletionCreateParamsBase(TypedDict, total=False):
     will not call a function and instead generates a message. `auto` means the model
     can pick between generating a message or calling a function. Specifying a
     particular function via
-    `{"type: "function", "function": {"name": "my_function"}}` forces the model to
+    `{"type": "function", "function": {"name": "my_function"}}` forces the model to
     call that function.
 
     `none` is the default when no functions are present. `auto` is the default if

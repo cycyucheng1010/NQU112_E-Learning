@@ -76,7 +76,22 @@ class ExamViewset(viewsets.ViewSet):
                 response_data = {"msg": "error"}
 
         return JsonResponse(response_data)
-        
+
+def process_list5(year):
+
+    if year == 110:
+        return False
+    if year == 111:
+        return False
+    if year == 112:
+        return False
+
+    return True
+
+def list5_processing_logic():
+    pass
+
+
 def test_paper(request, year):
     try:
         test_papers_models = [
@@ -398,6 +413,7 @@ def test_paper(request, year):
             list5d.extend(D)
             list5topicnumber.extend(TOPIC_NUMBER)
             list5topic.extend(TOPIC)
+                
 
         list6 = []
 
@@ -462,6 +478,7 @@ def test_paper(request, year):
         traceback.print_exc() 
 
     return {"msg": "def error"}
+
 '''
 
 #保存學生成績

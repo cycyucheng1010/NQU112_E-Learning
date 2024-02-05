@@ -2,15 +2,17 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, List, Union, Optional, overload
+from typing import Dict, List, Union, Optional, overload
 from typing_extensions import Literal
 
 import httpx
 
+from ... import _legacy_response
 from ..._types import NOT_GIVEN, Body, Query, Headers, NotGiven
 from ..._utils import required_args, maybe_transform
+from ..._compat import cached_property
 from ..._resource import SyncAPIResource, AsyncAPIResource
-from ..._response import to_raw_response_wrapper, async_to_raw_response_wrapper
+from ..._response import to_streamed_response_wrapper, async_to_streamed_response_wrapper
 from ..._streaming import Stream, AsyncStream
 from ...types.chat import (
     ChatCompletion,
@@ -20,20 +22,21 @@ from ...types.chat import (
     ChatCompletionToolChoiceOptionParam,
     completion_create_params,
 )
-from ..._base_client import make_request_options
-
-if TYPE_CHECKING:
-    from ..._client import OpenAI, AsyncOpenAI
+from ..._base_client import (
+    make_request_options,
+)
 
 __all__ = ["Completions", "AsyncCompletions"]
 
 
 class Completions(SyncAPIResource):
-    with_raw_response: CompletionsWithRawResponse
+    @cached_property
+    def with_raw_response(self) -> CompletionsWithRawResponse:
+        return CompletionsWithRawResponse(self)
 
-    def __init__(self, client: OpenAI) -> None:
-        super().__init__(client)
-        self.with_raw_response = CompletionsWithRawResponse(self)
+    @cached_property
+    def with_streaming_response(self) -> CompletionsWithStreamingResponse:
+        return CompletionsWithStreamingResponse(self)
 
     @overload
     def create(
@@ -43,6 +46,8 @@ class Completions(SyncAPIResource):
         model: Union[
             str,
             Literal[
+                "gpt-4-0125-preview",
+                "gpt-4-turbo-preview",
                 "gpt-4-1106-preview",
                 "gpt-4-vision-preview",
                 "gpt-4",
@@ -149,7 +154,8 @@ class Completions(SyncAPIResource):
               [See more information about frequency and presence penalties.](https://platform.openai.com/docs/guides/text-generation/parameter-details)
 
           response_format: An object specifying the format that the model must output. Compatible with
-              `gpt-4-1106-preview` and `gpt-3.5-turbo-1106`.
+              [GPT-4 Turbo](https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo) and
+              `gpt-3.5-turbo-1106`.
 
               Setting to `{ "type": "json_object" }` enables JSON mode, which guarantees the
               message the model generates is valid JSON.
@@ -187,7 +193,7 @@ class Completions(SyncAPIResource):
               will not call a function and instead generates a message. `auto` means the model
               can pick between generating a message or calling a function. Specifying a
               particular function via
-              `{"type: "function", "function": {"name": "my_function"}}` forces the model to
+              `{"type": "function", "function": {"name": "my_function"}}` forces the model to
               call that function.
 
               `none` is the default when no functions are present. `auto` is the default if
@@ -229,6 +235,8 @@ class Completions(SyncAPIResource):
         model: Union[
             str,
             Literal[
+                "gpt-4-0125-preview",
+                "gpt-4-turbo-preview",
                 "gpt-4-1106-preview",
                 "gpt-4-vision-preview",
                 "gpt-4",
@@ -342,7 +350,8 @@ class Completions(SyncAPIResource):
               [See more information about frequency and presence penalties.](https://platform.openai.com/docs/guides/text-generation/parameter-details)
 
           response_format: An object specifying the format that the model must output. Compatible with
-              `gpt-4-1106-preview` and `gpt-3.5-turbo-1106`.
+              [GPT-4 Turbo](https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo) and
+              `gpt-3.5-turbo-1106`.
 
               Setting to `{ "type": "json_object" }` enables JSON mode, which guarantees the
               message the model generates is valid JSON.
@@ -373,7 +382,7 @@ class Completions(SyncAPIResource):
               will not call a function and instead generates a message. `auto` means the model
               can pick between generating a message or calling a function. Specifying a
               particular function via
-              `{"type: "function", "function": {"name": "my_function"}}` forces the model to
+              `{"type": "function", "function": {"name": "my_function"}}` forces the model to
               call that function.
 
               `none` is the default when no functions are present. `auto` is the default if
@@ -415,6 +424,8 @@ class Completions(SyncAPIResource):
         model: Union[
             str,
             Literal[
+                "gpt-4-0125-preview",
+                "gpt-4-turbo-preview",
                 "gpt-4-1106-preview",
                 "gpt-4-vision-preview",
                 "gpt-4",
@@ -528,7 +539,8 @@ class Completions(SyncAPIResource):
               [See more information about frequency and presence penalties.](https://platform.openai.com/docs/guides/text-generation/parameter-details)
 
           response_format: An object specifying the format that the model must output. Compatible with
-              `gpt-4-1106-preview` and `gpt-3.5-turbo-1106`.
+              [GPT-4 Turbo](https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo) and
+              `gpt-3.5-turbo-1106`.
 
               Setting to `{ "type": "json_object" }` enables JSON mode, which guarantees the
               message the model generates is valid JSON.
@@ -559,7 +571,7 @@ class Completions(SyncAPIResource):
               will not call a function and instead generates a message. `auto` means the model
               can pick between generating a message or calling a function. Specifying a
               particular function via
-              `{"type: "function", "function": {"name": "my_function"}}` forces the model to
+              `{"type": "function", "function": {"name": "my_function"}}` forces the model to
               call that function.
 
               `none` is the default when no functions are present. `auto` is the default if
@@ -601,6 +613,8 @@ class Completions(SyncAPIResource):
         model: Union[
             str,
             Literal[
+                "gpt-4-0125-preview",
+                "gpt-4-turbo-preview",
                 "gpt-4-1106-preview",
                 "gpt-4-vision-preview",
                 "gpt-4",
@@ -679,11 +693,13 @@ class Completions(SyncAPIResource):
 
 
 class AsyncCompletions(AsyncAPIResource):
-    with_raw_response: AsyncCompletionsWithRawResponse
+    @cached_property
+    def with_raw_response(self) -> AsyncCompletionsWithRawResponse:
+        return AsyncCompletionsWithRawResponse(self)
 
-    def __init__(self, client: AsyncOpenAI) -> None:
-        super().__init__(client)
-        self.with_raw_response = AsyncCompletionsWithRawResponse(self)
+    @cached_property
+    def with_streaming_response(self) -> AsyncCompletionsWithStreamingResponse:
+        return AsyncCompletionsWithStreamingResponse(self)
 
     @overload
     async def create(
@@ -693,6 +709,8 @@ class AsyncCompletions(AsyncAPIResource):
         model: Union[
             str,
             Literal[
+                "gpt-4-0125-preview",
+                "gpt-4-turbo-preview",
                 "gpt-4-1106-preview",
                 "gpt-4-vision-preview",
                 "gpt-4",
@@ -799,7 +817,8 @@ class AsyncCompletions(AsyncAPIResource):
               [See more information about frequency and presence penalties.](https://platform.openai.com/docs/guides/text-generation/parameter-details)
 
           response_format: An object specifying the format that the model must output. Compatible with
-              `gpt-4-1106-preview` and `gpt-3.5-turbo-1106`.
+              [GPT-4 Turbo](https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo) and
+              `gpt-3.5-turbo-1106`.
 
               Setting to `{ "type": "json_object" }` enables JSON mode, which guarantees the
               message the model generates is valid JSON.
@@ -837,7 +856,7 @@ class AsyncCompletions(AsyncAPIResource):
               will not call a function and instead generates a message. `auto` means the model
               can pick between generating a message or calling a function. Specifying a
               particular function via
-              `{"type: "function", "function": {"name": "my_function"}}` forces the model to
+              `{"type": "function", "function": {"name": "my_function"}}` forces the model to
               call that function.
 
               `none` is the default when no functions are present. `auto` is the default if
@@ -879,6 +898,8 @@ class AsyncCompletions(AsyncAPIResource):
         model: Union[
             str,
             Literal[
+                "gpt-4-0125-preview",
+                "gpt-4-turbo-preview",
                 "gpt-4-1106-preview",
                 "gpt-4-vision-preview",
                 "gpt-4",
@@ -992,7 +1013,8 @@ class AsyncCompletions(AsyncAPIResource):
               [See more information about frequency and presence penalties.](https://platform.openai.com/docs/guides/text-generation/parameter-details)
 
           response_format: An object specifying the format that the model must output. Compatible with
-              `gpt-4-1106-preview` and `gpt-3.5-turbo-1106`.
+              [GPT-4 Turbo](https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo) and
+              `gpt-3.5-turbo-1106`.
 
               Setting to `{ "type": "json_object" }` enables JSON mode, which guarantees the
               message the model generates is valid JSON.
@@ -1023,7 +1045,7 @@ class AsyncCompletions(AsyncAPIResource):
               will not call a function and instead generates a message. `auto` means the model
               can pick between generating a message or calling a function. Specifying a
               particular function via
-              `{"type: "function", "function": {"name": "my_function"}}` forces the model to
+              `{"type": "function", "function": {"name": "my_function"}}` forces the model to
               call that function.
 
               `none` is the default when no functions are present. `auto` is the default if
@@ -1065,6 +1087,8 @@ class AsyncCompletions(AsyncAPIResource):
         model: Union[
             str,
             Literal[
+                "gpt-4-0125-preview",
+                "gpt-4-turbo-preview",
                 "gpt-4-1106-preview",
                 "gpt-4-vision-preview",
                 "gpt-4",
@@ -1178,7 +1202,8 @@ class AsyncCompletions(AsyncAPIResource):
               [See more information about frequency and presence penalties.](https://platform.openai.com/docs/guides/text-generation/parameter-details)
 
           response_format: An object specifying the format that the model must output. Compatible with
-              `gpt-4-1106-preview` and `gpt-3.5-turbo-1106`.
+              [GPT-4 Turbo](https://platform.openai.com/docs/models/gpt-4-and-gpt-4-turbo) and
+              `gpt-3.5-turbo-1106`.
 
               Setting to `{ "type": "json_object" }` enables JSON mode, which guarantees the
               message the model generates is valid JSON.
@@ -1209,7 +1234,7 @@ class AsyncCompletions(AsyncAPIResource):
               will not call a function and instead generates a message. `auto` means the model
               can pick between generating a message or calling a function. Specifying a
               particular function via
-              `{"type: "function", "function": {"name": "my_function"}}` forces the model to
+              `{"type": "function", "function": {"name": "my_function"}}` forces the model to
               call that function.
 
               `none` is the default when no functions are present. `auto` is the default if
@@ -1251,6 +1276,8 @@ class AsyncCompletions(AsyncAPIResource):
         model: Union[
             str,
             Literal[
+                "gpt-4-0125-preview",
+                "gpt-4-turbo-preview",
                 "gpt-4-1106-preview",
                 "gpt-4-vision-preview",
                 "gpt-4",
@@ -1330,13 +1357,35 @@ class AsyncCompletions(AsyncAPIResource):
 
 class CompletionsWithRawResponse:
     def __init__(self, completions: Completions) -> None:
-        self.create = to_raw_response_wrapper(
+        self._completions = completions
+
+        self.create = _legacy_response.to_raw_response_wrapper(
             completions.create,
         )
 
 
 class AsyncCompletionsWithRawResponse:
     def __init__(self, completions: AsyncCompletions) -> None:
-        self.create = async_to_raw_response_wrapper(
+        self._completions = completions
+
+        self.create = _legacy_response.async_to_raw_response_wrapper(
+            completions.create,
+        )
+
+
+class CompletionsWithStreamingResponse:
+    def __init__(self, completions: Completions) -> None:
+        self._completions = completions
+
+        self.create = to_streamed_response_wrapper(
+            completions.create,
+        )
+
+
+class AsyncCompletionsWithStreamingResponse:
+    def __init__(self, completions: AsyncCompletions) -> None:
+        self._completions = completions
+
+        self.create = async_to_streamed_response_wrapper(
             completions.create,
         )
