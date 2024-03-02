@@ -16,11 +16,14 @@ import InfoIcon from '@mui/icons-material/Info';
 import AddIcon from '@mui/icons-material/Add';
 import { IconButton } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import DropDownProfile from './DropDownProfile';
+import {useState} from 'react';
 
 export default function Navbar(props) {
   const { drawerWidth, content } = props;
   const location = useLocation();
   const path = location.pathname;
+  const [openProfile,setOpenProfile] = useState(false);
 
   const [open, setOpen] = React.useState(false);
 
@@ -79,6 +82,12 @@ export default function Navbar(props) {
           <Typography variant="h6" noWrap component="div">
             Our application
           </Typography>
+          {
+            openProfile && <DropDownProfile />
+            
+            
+          }
+          <DropDownProfile />
         </Toolbar>
       </AppBar>
 

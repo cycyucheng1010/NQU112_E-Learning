@@ -26,12 +26,16 @@ from django.utils.crypto import get_random_string
 from django.conf import settings
 from django.http import JsonResponse
 #句子圖片模型
-from api.models import WordInfos
+#from api.models import WordInfos
 import openai
 import traceback
 from openai import OpenAI
 from django.http import JsonResponse
 import requests
+#user
+from rest_framework import status
+from rest_framework.response import Response
+from django.contrib.auth.hashers import make_password
 
 class ProjectViewset(viewsets.ViewSet):
     permission_classes =[permissions.AllowAny]
@@ -72,71 +76,27 @@ class ProjectViewset(viewsets.ViewSet):
 
         return response(status=204)
 
-class UserViewset(ModelViewSet):
-    serializer_class = UserSerializer
-    queryset =User.objects.all()
+@api_view(['POST'])
+def register(request):
+    data = request.data
+    data['password'] = make_password(data['password'])
+    serializer = UserSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+            print(serializer.errors)  # 打印错误信息
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(methods=['POST'],url_path = 'login',detail = False)
-    def login(self,request):
-
-        email = request.data.get('email')
-        pwd = request.data.get('password')
-
-        res ={
-            'code':0,
-            'msg' :'',
-            'data':{}
-        }
-        if not all([email,pwd]):
-            res['msg'] = '參數異常'
-            return Response(res)
-        print(request.data)
-        try:
-            user=User.objects.get(email=email,password=pwd)
-        except:
-            res['msg'] = '帳號或密碼錯誤請重新登入'
-            return Response(res)
-        if user.is_active !=1:
-            res['msg'] = '用戶不可用，請重新登入'
-        
-        login(request,user)
-        request.session['login'] =True
-        request.session['FS_YWPT'] = True
-        request.session.set_expiry(0)
-        res['msg'] = '登入成功'
-        res['code'] = 1
-        res['data'] ={'email' :email}
-        return Response(res)
-    @action(methods=['POST'], url_path='register', detail=False)
-    def register(self, request):
-        '''
-        注册
-        :param request: 用于传参数，必要参数 email：邮箱   password：密码  username：用户名 
-        :return:
-        '''
-        email = request.data.get('email')
-        password = request.data.get('password')
-        username = request.data.get('username')
-
-        res = {
-            'code': 0,
-            'msg': '',
-            'data': {}
-        }
-
-        if not all([email, password, username]):
-            res['msg'] = '参数异常。'
-            return Response(res)
-
-        print([email, password, username])
-        if User.objects.filter(username=username):
-            res['msg'] = '用户已存在。'
-            return Response(res)
-
-        User.objects.create(password=password, is_superuser=0, username=username, email=email)
-        res['code'] = 1
-        res['data'] = [email, password, username]
-        return Response(res)
+@api_view(['POST'])
+def login(request):
+    email = request.data.get('email')
+    password = request.data.get('password')
+    user = User.objects.filter(email=email).first()
+    if user and user.check_password(password):
+        # 返回用戶資料
+        return Response({'username': user.username, 'message': 'Login successful'}, status=status.HTTP_200_OK)
+    return Response({'message': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
 
 #英文資料庫
 class EnglishWordSearchAPIView(viewsets.ViewSet):

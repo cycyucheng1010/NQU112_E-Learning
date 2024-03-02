@@ -5,17 +5,21 @@ from .models import EnglishWordSearch
 #from .models import ExamUI
 from django.contrib.auth.models import User
 from .models import ExamPaper, EnglishOptionalNumber1, EnglishOptionalNumber2, OptionalTopicNumber2, EnglishOptionalNumber3, OptionalTopicNumber3, EnglishOptionalNumber4,EnglishOptionalNumber5,OptionalTopicNumber5
-
+from .models import Profile
 
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields =('id','name','start_date','end_date','comments','status')
 
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ['id', 'email', 'password', 'username']
+        extra_kwargs = {'password': {'write_only': True}}
+
+
 
 class EnglishSerializer(serializers.ModelSerializer):
     class Meta:

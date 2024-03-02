@@ -50,3 +50,7 @@ admin.site.register(EnglishWordSearch)
 
 from .models import(EnglishWord)
 admin.site.register(EnglishWord)
+
+
+from .models import(EnglishWords)
+admin.site.register(EnglishWords)

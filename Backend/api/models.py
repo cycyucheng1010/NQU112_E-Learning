@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 class Project(models.Model):
     name = models.CharField(unique=True,max_length=100)
@@ -101,6 +102,11 @@ class EnglishWord(models.Model):
     part_of_speech = models.TextField()
     explain = models.TextField()
 
+class EnglishWords(models.Model):
+    word = models.TextField()
+    part_of_speech = models.TextField()
+    explain = models.TextField()
+
 class OptionalTopic(models.Model):
     topic_number = models.TextField()
     topic = models.TextField()
@@ -175,3 +181,16 @@ class WordInfos(models.Model):
 
     def __str__(self):
         return self.word.word 
+    
+class Word_infos(models.Model):
+    word = models.ForeignKey(EnglishWords, on_delete=models.CASCADE)
+    sentence = models.TextField(blank=True, null=True)
+    image_file = models.ImageField(upload_to='word_images/', blank=True, null=True)
+    image_url = models.TextField(blank=True, null=True)  # 添加字段以存储图片URL
+
+    def __str__(self):
+        return self.word.word 
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
