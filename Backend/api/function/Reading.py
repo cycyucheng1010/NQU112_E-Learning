@@ -11,7 +11,7 @@ from django.http import HttpResponse, JsonResponse
 import time
 import os
 
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="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")
 list_articles = [] 
 list_questions = [] 
 list_answer  = []
@@ -30,7 +30,6 @@ class ReadingView(viewsets.ViewSet):
                 data = request.data
                 message_type = data.get('message_type')
                 
-
                 generated_text = ""
 
                 # 根据消息类型选择发送的消息
@@ -53,13 +52,10 @@ class ReadingView(viewsets.ViewSet):
 
                     # 检查生成的文本是否为空字符串
                     if generated_text.strip():
-
                         list_articles.append(generated_text)
                         print("Generated article:", generated_text)
                         print("List of articles:", list_articles)
-
                     else:
-
                         print("Generated article is empty. Skipping adding to list.")
 
                 elif message_type == 'question':
@@ -77,7 +73,7 @@ class ReadingView(viewsets.ViewSet):
                     ]
 
                     # 在這裡加入等待，給生成文章的請求足夠的時間
-                    time.sleep(5)  
+                    time.sleep(2)  
 
                     # 發送消息給 GPT
                     response = client.chat.completions.create(
@@ -93,22 +89,22 @@ class ReadingView(viewsets.ViewSet):
                     print("Generated question:", generated_text)
                     print("List of questions:", list_questions)
 
-
                 elif message_type == 'answer':
                     
+                    if not list_articles or not list_questions:
+                        print("No article or questions available for generating answers.")
+                        return JsonResponse({"error": "No article or questions available for generating answers."})
+
                     last_article = list_articles[-1]
                     last_questions = list_questions[-1]
 
-                    print(list_articles)
-                    print(list_questions)
-
                     messages = [
                         {"role": "system", "content": last_questions},
-                        {"role": "user", "content": "Can you help me answer the user's question? Provide the correct answer indicated in UPPERCASE."},
+                        {"role": "user", "content": "Can you help me answer the user's question? Provide the correct answer "},
                     ]
 
                     # 在這裡加入等待，給生成文章的請求足夠的時間
-                    time.sleep(5)  
+                    time.sleep(2)  
 
                     # 發送消息給 GPT
                     response = client.chat.completions.create(
@@ -121,7 +117,6 @@ class ReadingView(viewsets.ViewSet):
                     generated_text = response.choices[0].message.content
 
                     list_answer.append(generated_text)
-
 
                 # 返回生成的文本给前端
                 return JsonResponse({"response": generated_text})

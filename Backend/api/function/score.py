@@ -44,7 +44,20 @@ class ScoreViewset(viewsets.ViewSet):
                 response_data = {"msg":"error"}
             
             return Response(response_data)
-        
+
+def process_list5(year):
+
+    if year == 110:
+        return False
+    if year == 111:
+        return False
+    if year == 112:
+        return False
+
+    return True
+
+def list5_processing_logic():
+    pass        
 #對答案 然後抓寫正確的題數        
 def answer_process(request ,user_answer, year):
 
@@ -158,9 +171,10 @@ def answer_process(request ,user_answer, year):
         for item1, item2 in zip(user_answer, list4):
             if item1 == item2:
                 l4 += 2
-        for item1, item2 in zip(user_answer, list5):
-            if item1 == item2:
-                l5 += 2
+        if list5:
+            for item1, item2 in zip(user_answer, list5):
+                if item1 == item2:
+                    l5 += 2
         #得分
         user_score = l1 + l2 +l3 +l4 +l5
 
@@ -176,9 +190,10 @@ def answer_process(request ,user_answer, year):
         for item1, item2 in zip(list4, list4):
             if item1 == item2:
                 s4 += 2
-        for item1, item2 in zip(list5, list5):
-            if item1 == item2:
-                s5 += 2
+        if list5:
+            for item1, item2 in zip(list5, list5):
+                if item1 == item2:
+                    s5 += 2
         #總分
         total_score = s1 + s2 +s3 +s4 +s5
 
