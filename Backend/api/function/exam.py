@@ -1,6 +1,5 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-
 from rest_framework import viewsets,permissions
 from ..serializers import ProjectSerializer,Project,UserSerializer,User,EnglishSerializer,ExamPaperSerializer
 from rest_framework.response import Response 
@@ -167,7 +166,7 @@ def test_paper(request, year):
 
         group2_1 =  OptionalTopicNumber2.objects.filter(year=f"{year}")
 
-        list2topic  = []
+        list2_1topic  = []
 
         for record in group2_1 :
             
@@ -176,7 +175,7 @@ def test_paper(request, year):
                
                 f"topic :{topic}",
             }
-            list2topic.extend(TOPIC)
+            list2_1topic.extend(TOPIC)
 
         group2 =  EnglishOptionalNumber2.objects.filter(year=f"{year}")
 
@@ -185,6 +184,7 @@ def test_paper(request, year):
         list2b =[]
         list2c = []
         list2d = []
+        list2topic = []
         list2topicnumber = []
 
 
@@ -196,6 +196,9 @@ def test_paper(request, year):
             answer_D = record.answer_D
             TOPIC_NUMBER = [
                 f"topic_number: {topic_number}",
+            ]
+            TOPIC = [
+                f"topic :{topic}",
             ]
             A = [
                 f"answer_A: {answer_A}",
@@ -214,6 +217,7 @@ def test_paper(request, year):
             list2c.extend(C)
             list2d.extend(D)
             list2topicnumber.extend(TOPIC_NUMBER)
+            list2topic.extend(TOPIC)
 
 
         list3_1topic = []
@@ -272,7 +276,7 @@ def test_paper(request, year):
             ]
             D = [
                 f"answer_D: {answer_D}",
-            ]
+            ] 
             E = [
                 f"answer_E: {answer_E}",
             ]
@@ -416,7 +420,6 @@ def test_paper(request, year):
                 
 
         list6 = []
-
         list7 = []
         list8 = []
         list9 = []
@@ -461,6 +464,7 @@ def test_paper(request, year):
         list5.extend(list3topic)
         list5.extend(list4topic)
         list5.extend(list5topic)
+        list5.extend(list2_1topic)
         list5.extend(list3_1topic)
         list5.extend(list4_1topic)
         list5.extend(list5_1topic)
@@ -478,48 +482,4 @@ def test_paper(request, year):
         traceback.print_exc() 
 
     return {"msg": "def error"}
-
-'''
-
-#保存學生成績
-@csrf_exempt  
-@action(detail=False, methods=['GET'], url_path='grade')
-def save_grade(request):
-    if request.method == 'GET':
-        data = json.loads(request.body)
-
-        stu_answers = data.get('stu_answers', '')
-        question_number = data.get('question_number', '')
-        correct_answers = data.get('correct_answers', '')
-        stu_grade = data.get('stu_grade', '')
-        message= {"abc":"hello"}
-        return Response("message")
-
-        # 在這裡進行保存成績的邏輯
-        record_grade = StudentScores(
-            subject=question_number,  
-            score=stu_grade,
-            timestamp=datetime.now(),
-        )
-        record_grade.save()
-
-        return JsonResponse({'message': 'Grade saved successfully'})
-
-    return JsonResponse({'error': 'Invalid request method'})
-
-
-    
-        examlist = []
-        examlist.extend(list1)
-        examlist.extend(list2_1)
-        examlist.extend(list2)
-        examlist.extend(list3_1)
-        examlist.extend(list3)
-        examlist.extend(list4_1)
-        examlist.extend(list4)
-        examlist.extend(list5_1)
-        examlist.extend(list5)
-'''
-'''
-
-'''
+            

@@ -9,6 +9,8 @@ import Delete from './components/Delete';
 import Search from './components/Search';
 import Login from './components/Login'; 
 import Register from './components/Register';
+import Reading from './components/Reading';
+
 function App() {
   const myWidth =200
   return (
@@ -25,7 +27,7 @@ function App() {
       <Route path="/search" element={<Search/>}/>
       <Route path="/login" element={<Login/>}/>
       <Route path="/register" element={<Register/>}/>
-    
+      <Route path= "/Reading" element={<Reading/>}/>
     </Routes>
       }/>
     </div>

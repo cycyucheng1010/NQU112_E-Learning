@@ -5,6 +5,7 @@ from .function.exam import ExamViewset
 from .function.gpt import GPTView
 from .function.score import ScoreViewset
 from .function.Reading import ReadingView
+from .function.ReadingAnswer import QuestionView
 
 
 router = DefaultRouter()
@@ -14,6 +15,7 @@ router.register('exam', ExamViewset, basename='exam')
 router.register('chatgpt', GPTView, basename='chatgpt')
 router.register('score', ScoreViewset, basename='score')
 router.register('reading', ReadingView, basename='reading')
+router.register('ReadingAnswer',QuestionView, basename='ReadingAnswer')
 urlpatterns = router.urls
 
 #urlpatterns =[
